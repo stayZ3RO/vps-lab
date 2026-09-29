@@ -197,8 +197,8 @@ for the parallel infra/certs/content tracks.
 - Placement conflict: the existing recommendation was "small container now,
   later pushed to a lab node or admin workstation." Putting it on the
   **public** VPS is a different placement decision and should be confirmed
-  with the operator first
-- It would front-run a decision owned by the ops-private track; if it deploys
+  with you first
+- It would front-run a decision owned by the private operations track; if it deploys
   here, that track should ratify the placement
 
 ---
@@ -231,7 +231,7 @@ for the parallel infra/certs/content tracks.
 **Shlink is the strong second** if the goal shifts to demonstrating public API
 management, and it remains a natural Phase 5-era addition, since its click
 stats pair well with monitoring. **Vikunja is viable but mis-sequenced here**:
-its placement decision belongs to the ops-private track, and it can be
+its placement decision belongs to the private operations track, and it can be
 deployed behind Caddy later without losing anything.
 
 ---
@@ -333,13 +333,13 @@ Details land in `validation.md` after app selection.
 
 ---
 
-## Decision Points for the Operator
+## Decision Points
 
 | # | Decision | Status |
 |---|---|---|
 | 1 | Which app | ✅ Decided: A (Umami) |
 | 2 | Subdomain naming | ✅ Decided: new `analytics.stayz3ro.dev` record in the Cloudflare zone |
-| 3 | Vikunja placement (only if C won) | Moot (A won) - stays with the ops-private track |
+| 3 | Vikunja placement (only if C won) | Moot (A won) - stays with the private operations track |
 | 4 | Second app in this phase? | Scope stays **one app**; a second app would reuse this runbook in a later pass |
 
 ---

@@ -149,7 +149,7 @@ Caddy-vs-NPM-vs-Traefik comparison).
 Correction made 2026-08-30: the original build targeted the `stayz3ro.dev`
 apex + `www` with a static landing page. Between build and deploy, the
 apex was claimed by a separate Astro blog on Cloudflare Pages (see
-`homelab-ops-private` CHANGELOG, 2026-08-29 entry). The Caddy config, compose
+the private operations CHANGELOG, 2026-08-29 entry). The Caddy config, compose
 stack, and all four Phase 3 docs were retargeted: this VPS now serves
 `status.stayz3ro.dev` reverse-proxied to Uptime Kuma; the apex/`www` are
 never served here. `apps` and `api` remain staged for later.
@@ -226,7 +226,7 @@ target for Phase 6), and the smallest abuse surface for a first public app.
   `screenshots/phase-3-reverse-proxy-https/`. Item 06 (`www` redirect) was
   confirmed not applicable post-retarget; a bonus item 10 (Cloudflare zone
   as found during the DNS-zone-mismatch fix) was added. Committed after the
-  operator visual pass (PR #11).
+  visual pass (PR #11).
 
 ## Pending
 
