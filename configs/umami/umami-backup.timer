@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Umami PostgreSQL backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 UTC
+Persistent=true
+Unit=umami-backup.service
+
+[Install]
+WantedBy=timers.target
