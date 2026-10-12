@@ -74,15 +74,20 @@ status.{$SITE_DOMAIN} {
 }
 
 # ---------------------------------------------------------------------------
-# analytics.<domain> -> Umami web analytics (Phase 4).
-# Staged until the Umami stack (configs/umami) is running on the `web`
-# network - enable it in step-by-step.md Step 7 (uncomment, validate,
-# restart). Requires an `analytics` A record in the LIVE zone (Cloudflare,
-# not Porkbun - see Lessons Learned, Phase 3).
+# a.chrisalorenzo.com -> public Umami tracker paths (Phase 4).
+# Keep staged until the stack is running, the admin password is changed over
+# the tailnet, and the DNS record exists. The dashboard and management API
+# return 404 here. Admin access uses the loopback publish and Tailscale Serve.
 # ---------------------------------------------------------------------------
-# analytics.{$SITE_DOMAIN} {
+# a.chrisalorenzo.com {
 # 	import security_headers
-# 	reverse_proxy umami:3000
+# 	@tracker path /script.js /api/send
+# 	handle @tracker {
+# 		reverse_proxy umami:3000
+# 	}
+# 	handle {
+# 		respond 404
+# 	}
 # }
 
 # ---------------------------------------------------------------------------

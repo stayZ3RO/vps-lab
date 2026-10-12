@@ -1,320 +1,217 @@
-# Phase 4 - Step-by-Step Guide 🛠️
-
-![Status](https://img.shields.io/badge/status-in%20progress-yellow)
-![Scope](https://img.shields.io/badge/scope-Docker%20App%20Deployment-blue)
-![App](https://img.shields.io/badge/app-Umami-success)
-![Proxy](https://img.shields.io/badge/proxy-behind%20Caddy-success)
+# Phase 4: Umami Deployment
 
 ## Purpose
 
-This guide is the implementation runbook for deploying Umami web analytics
-(`analytics.stayz3ro.dev`) as the first application container behind the
-Phase 3 Caddy reverse proxy.
+Deploy Umami with a public tracker at `a.chrisalorenzo.com` and tailnet-only
+admin access. Caddy passes `/script.js` and `/api/send` to Umami. Every other
+public path returns 404. Docker publishes the admin listener on loopback, and
+Tailscale Serve exposes it to tailnet devices on port 8444.
 
-Run it on the VPS over Tailscale SSH.
+The approved domain consolidation notes are in
+[`docs/umami-rescope-DRAFT-2026-10-12.md`](../umami-rescope-DRAFT-2026-10-12.md).
+The public DNS record belongs in the `chrisalorenzo.com` zone.
 
-**Prerequisite**: review the captured, redacted Phase 3 evidence
-([screenshots/phase-3-reverse-proxy-https/README.md](../../screenshots/phase-3-reverse-proxy-https/README.md))
-before changing the live deployment.
+## Deployment order
 
----
-
-## Implementation Flow
-
-| Step | Task | Status |
-|---|---|---:|
-| 1 | Confirm prerequisites (proxy stack, `web` network, headroom) | ⏳ Pending |
-| 2 | Create `.env` from the template | ⏳ Pending |
-| 3 | Validate the compose config | ⏳ Pending |
-| 4 | Bring up the Umami stack | ⏳ Pending |
-| 5 | Claim the admin account over an SSH tunnel (before exposure) | ⏳ Pending |
-| 6 | Add the `analytics` DNS record in Cloudflare (the live zone) | ⏳ Pending |
-| 7 | Enable the Caddy route (uncomment, validate, restart) | ⏳ Pending |
-| 8 | Validate HTTPS externally | ⏳ Pending |
-| 9 | Confirm backend and database ports are not public | ⏳ Pending |
-| 10 | Add an Uptime Kuma monitor for the new host | ⏳ Pending |
-| 11 | Wire the blog embed (separate repo) | ⏳ Pending |
-| 12 | Capture redacted screenshots | ⏳ Pending |
-
----
-
-## Step 1 - Confirm Prerequisites
-
-The Phase 3 proxy stack must be running, since it creates the `web` network
-this app joins. The live checkout predates a history rewrite, so do not run
-`git pull` there. From a clean workstation clone at the approved merged commit,
-stage only the Umami files this run needs, using the existing Tailscale SSH
-alias:
-
-    VPS_ALIAS=your-existing-tailscale-ssh-alias
-    ssh "$VPS_ALIAS" 'mkdir -p /opt/stayz3ro/proxy/configs/umami'
-    scp configs/umami/docker-compose.yml configs/umami/.env.example \
-      "$VPS_ALIAS:/opt/stayz3ro/proxy/configs/umami/"
-
-Then on the VPS:
-
-    cd /opt/stayz3ro/proxy   # or wherever the live deployment is checked out
-    cd configs/caddy && docker compose ps
-
-Expected: `caddy` and `uptime-kuma` running.
-
-    docker network ls | grep -w web
-
-Expected: a network named `web` exists.
-
-Confirm the VPS has headroom for a second stack (small VPS - check before
-adding, not after):
-
-    free -h
-
----
-
-## Step 2 - Create the Environment File
-
-    cd ../umami || exit 1
-    cp .env.example .env
-    nano .env
-    chmod 600 .env
-
-Set:
-
-| Variable | Value |
+| Step | Task |
 |---|---|
-| `POSTGRES_PASSWORD` | Long random value. Avoid URL-special characters (`!`, `#`, `%`, `&`, ...) - it is embedded in `DATABASE_URL` |
-| `APP_SECRET` | Output of `openssl rand -base64 32` |
+| 1 | Check prerequisites and stage the Umami files |
+| 2 | Create the private `.env` file |
+| 3 | Validate and start the stack |
+| 4 | Enable tailnet admin access and change the default password |
+| 5 | Install and run the daily database backup timer |
+| 6 | Add the public DNS record |
+| 7 | Enable the Caddy tracker route |
+| 8 | Validate public paths and add a monitor |
+| 9 | Add the tracker script to the intended websites |
+
+Run host commands over the existing tailnet SSH connection. Do not pull or
+switch branches in the live checkout.
+
+## Step 1: Check prerequisites and stage files
+
+The proxy stack must be running and the external Docker network `web` must
+exist. Check both and confirm there is enough memory for Umami and PostgreSQL.
+
+From a clean workstation checkout, set the existing SSH alias and copy the
+Umami files:
+
+```sh
+DEPLOY_ALIAS=your-existing-tailnet-ssh-alias
+ssh "$DEPLOY_ALIAS" 'mkdir -p /opt/stayz3ro/proxy/configs/umami'
+scp configs/umami/docker-compose.yml configs/umami/.env.example \
+  configs/umami/backup-umami.sh configs/umami/umami-backup.service \
+  configs/umami/umami-backup.timer \
+  "$DEPLOY_ALIAS:/opt/stayz3ro/proxy/configs/umami/"
+```
+
+On the host, confirm the proxy and network are present:
+
+```sh
+cd /opt/stayz3ro/proxy/configs/caddy
+docker compose ps
+docker network ls --filter name=web
+free -h
+```
+
+## Step 2: Create the private environment file
+
+```sh
+cd /opt/stayz3ro/proxy/configs/umami
+cp .env.example .env
+chmod 600 .env
+nano .env
+```
+
+Set `POSTGRES_PASSWORD` to a long random hex value, for example from
+`openssl rand -hex 32`. Set `APP_SECRET` from `openssl rand -base64 32`.
+Keep `.env` on the host and out of git.
+
+## Step 3: Validate and start the stack
+
+```sh
+docker compose config --quiet
+docker compose up -d
+docker compose ps
+docker compose logs --tail=40 umami
+docker port umami
+```
+
+Expected: `umami` is running, `umami-db` is healthy, the logs show successful
+startup, and `docker port umami` reports `127.0.0.1:3000`. There must be no
+published database port. The database health check gates Umami startup.
+
+## Step 4: Enable tailnet admin access
+
+The dashboard must be claimed before creating the public DNS record or
+enabling the public Caddy route.
+
+On the host:
+
+```sh
+tailscale serve --bg 8444 http://127.0.0.1:3000
+tailscale serve status
+```
+
+From a tailnet device, open the HTTPS URL shown by `tailscale serve status`
+with port 8444. Sign in with the initial `admin` / `umami` credentials and
+change the password immediately. Confirm the login works again after an
+Umami container restart.
+
+## Step 5: Install and run the daily database backup
+
+The script writes a custom-format `pg_dump` to
+`/opt/stayz3ro/backups/umami` each day at 03:30 UTC. It keeps 14 days of local
+dumps and matching SHA-256 sidecars. It checks the dump with `pg_restore --list`
+before promotion and removes partial files if a command fails.
+
+On the host:
+
+```sh
+cd /opt/stayz3ro/proxy/configs/umami
+sudo install -o root -g root -m 0750 backup-umami.sh /usr/local/sbin/umami-backup.sh
+sudo install -o root -g root -m 0644 umami-backup.service /etc/systemd/system/umami-backup.service
+sudo install -o root -g root -m 0644 umami-backup.timer /etc/systemd/system/umami-backup.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now umami-backup.timer
+sudo systemctl start umami-backup.service
+sudo systemctl status --no-pager umami-backup.service
+sudo ls -l /opt/stayz3ro/backups/umami
+```
 
-`.env` is gitignored - it stays on the VPS only.
+Confirm a dump exists and `systemctl list-timers umami-backup.timer` shows the
+next run. Verify the newest checksum from the backup directory with
+`sha256sum -c umami-<UTC-date>.dump.sha256`. Add the dump directory to the
+offsite backup source list when that backup is available.
 
----
+## Step 6: Add the public DNS record
 
-## Step 3 - Validate the Compose Config
+In the Cloudflare `chrisalorenzo.com` zone, add an `A` record named `a` with
+the VPS public IPv4 address and DNS-only proxy status. Do not add a record to
+the redirect-only zone.
 
-    docker compose config --quiet
+```sh
+dig +short a.chrisalorenzo.com
+```
 
-Expected: no output, exit 0.
+Confirm the result matches the public address configured for the VPS.
 
-Note the `--quiet`: the resolved config interpolates the real password into
-`DATABASE_URL`, so printing it (the default) would put the secret on screen
-and into any terminal capture.
+## Step 7: Enable the public tracker route
 
----
+Edit the Caddyfile in place so the existing bind mount keeps its inode. Remove
+the comment markers from the `a.chrisalorenzo.com` block only. Leave the path
+matcher and fallback 404 handler intact.
 
-## Step 4 - Bring Up the Umami Stack
+Validate before restarting Caddy:
 
-    docker compose up -d
-    docker compose ps
+```sh
+cd /opt/stayz3ro/proxy/configs/caddy
+docker run --rm -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
+  --env-file .env caddy:2-alpine \
+  caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+```
 
-Expected: `umami` and `umami-db` running, **no ports published** for either
-service.
+The Caddy admin API is disabled in this stack, so apply the validated file
+with a container restart:
 
-Confirm the database initialized and the app connected and migrated:
+```sh
+docker restart caddy
+```
 
-    docker compose logs umami | tail -n 20
+The restart briefly interrupts the public proxy routes. Caddy obtains the
+certificate for `a.chrisalorenzo.com` on the first HTTPS request.
 
-Expected: Umami startup without database errors.
+## Step 8: Validate public paths and add a monitor
 
----
+From a workstation:
 
-## Step 5 - Claim the Admin Account BEFORE Public Exposure
+```sh
+curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' https://a.chrisalorenzo.com/script.js
+curl -sS -o /dev/null -w '%{http_code}\n' https://a.chrisalorenzo.com/
+curl -sS -o /dev/null -w '%{http_code}\n' https://a.chrisalorenzo.com/login
+curl -sS -o /dev/null -w '%{http_code}\n' https://a.chrisalorenzo.com/api/websites
+```
 
-Umami ships with default credentials (`admin` / `umami`). The moment a Let's
-Encrypt certificate is issued, Certificate Transparency logs make the
-hostname discoverable to scanners - so the default login must be replaced
-first, over a private path.
+Expected: `/script.js` returns 200 with a JavaScript content type. The root,
+login, and website-management paths return 404. Confirm in browser developer
+tools that page collection uses `/api/send`. If a future tracker feature adds
+a public path, add only that required path to the Caddy matcher.
 
-Get the `umami` container's internal Docker network IP:
+In Uptime Kuma, add an HTTPS monitor for
+`https://a.chrisalorenzo.com/script.js`. The root path deliberately returns
+404 and is not a valid monitor target.
 
-    docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{.IPAddress}}{{"\n"}}{{end}}' umami
+## Step 9: Add the tracker to the intended websites
 
-From the workstation, tunnel to the container's `web`-network IP (local port
-`13000`; keep the SSH session open):
+Add the Umami script tag to each site's page head, using its website ID and
+the public tracker host:
 
-    ssh -L 13000:<umami_web_network_ip>:3000 <user>@<tailscale-ip>
+```html
+<script defer src="https://a.chrisalorenzo.com/script.js"
+        data-website-id="..."
+        data-domains="example.com,www.example.com"></script>
+```
 
-Open `http://localhost:13000` in the browser, sign in with the defaults, and
-immediately:
-
-- Change the admin username and password
-- Add the first website entry (the blog) so the embed script exists before
-  the public route does
-
-No public hostname, DNS record, or certificate exists yet - the race window
-cannot open. This is the Phase 3 Uptime Kuma pattern, applied by default.
-
----
-
-## Step 6 - Add the DNS Record in Cloudflare (the Live Zone)
-
-`stayz3ro.dev`'s registry-delegated nameservers are Cloudflare's - records
-edited in Porkbun's panel are never consulted. Verify the delegation first
-(through DoH if the workstation runs MagicDNS):
-
-    curl -s 'https://dns.google/resolve?name=stayz3ro.dev&type=NS'
-
-Expected: Cloudflare nameservers (`felipe`/`melissa.ns.cloudflare.com`).
-
-In the **Cloudflare** dashboard, add:
-
-| Record | Name | Content | Proxy |
-|---|---|---|---|
-| A | `analytics` | Netcup VPS public IP | **DNS only** (grey cloud) - Caddy terminates TLS itself, and ACME needs the direct connection |
-
-Then validate from two independent perspectives:
-
-    dig +short analytics.stayz3ro.dev
-    curl -s 'https://dns.google/resolve?name=analytics.stayz3ro.dev&type=A'
-
-Expected: both return the VPS public IP.
-
----
-
-## Step 7 - Enable the Caddy Route
-
-Uncomment the `analytics.{$SITE_DOMAIN}` block in the live
-`configs/caddy/Caddyfile` in place (staged there for exactly this step). Do not
-replace the bind-mounted file with a new inode.
-
-Validate with the same throwaway-container pattern as Phase 3:
-
-    cd ../caddy
-    docker run --rm -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
-      --env-file .env \
-      caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
-
-Expected: `Valid configuration`. If validation fails, stop and correct the
-Caddyfile. Do not restart the proxy.
-
-Restart the live proxy. Its admin API is disabled, so `caddy reload` cannot
-work. The restart briefly interrupts all public routes on this VPS:
-
-    docker restart caddy
-
-Caddy obtains the certificate for `analytics.stayz3ro.dev` on first request.
-Because Step 5 already replaced the default credentials, CT-log scanners
-find a claimed service.
-
----
-
-## Step 8 - Validate HTTPS Externally
-
-From the workstation (not the VPS):
-
-    curl -I http://analytics.stayz3ro.dev
-    curl -I https://analytics.stayz3ro.dev
-    curl -Iv https://analytics.stayz3ro.dev 2>&1 | grep -E 'subject:|issuer:|SSL certificate verify'
-
-Expected:
-
-- `http://` returns `308` with `Location: https://analytics.stayz3ro.dev/`
-- `https://` returns `200` (Umami login page)
-- Certificate issuer is Let's Encrypt; verification succeeds
-
-Open `https://analytics.stayz3ro.dev` in the browser and confirm the padlock
-and the Umami login page, and that the changed credentials sign in.
-
----
-
-## Step 9 - Confirm Backend and Database Ports Are Not Public
-
-From the workstation:
-
-    curl -sS -m 5 http://<VPS_PUBLIC_IP>:3000 ; echo "exit=$?"
-    curl -sS -m 5 http://<VPS_PUBLIC_IP>:5432 ; echo "exit=$?"
-
-Expected: connection refused or timeout (non-zero exit). Only 80 and 443
-answer.
-
-Optional, if `nmap` is available:
-
-    nmap -Pn -p 22,80,443,3000,3001,5432 <VPS_PUBLIC_IP>
-
-Expected: `80` and `443` open; everything else closed/filtered.
-
----
-
-## Step 10 - Add an Uptime Kuma Monitor
-
-Open the tailnet-only Kuma admin UI through the existing `tailscale serve`
-endpoint on port 8443, then add a new monitor. The public status page at
-`https://status.chrisalorenzo.com/status/main` cannot create monitors; public
-admin paths return 404.
-
-| Setting | Value |
-|---|---|
-| Monitor type | HTTP(s) |
-| URL | `https://analytics.stayz3ro.dev` |
-
-Expected: the monitor goes **Up**. The first app now watches the second.
-
----
-
-## Step 11 - Wire the Blog Embed (Separate Repo)
-
-Get the embed snippet from Umami's dashboard (website entry added in
-Step 5):
-
-    <script defer src="https://analytics.stayz3ro.dev/script.js"
-            data-website-id="..."></script>
-
-Add it to the Astro blog's `<head>` **in the blog's own repository** and
-deploy it there - this repo does not touch the blog. Coordinate the change
-explicitly with that project (parallel-repos lesson from Phase 3).
-
-Verify end-to-end: load the blog, then confirm the visit appears in the
-Umami dashboard.
-
----
-
-## Step 12 - Capture Screenshots
-
-Capture and redact:
-
-| # | Evidence | Purpose |
-|---|---|---|
-| 01 | `docker compose ps` (umami + umami-db) | Stack running, no published ports |
-| 02 | Umami login over the SSH tunnel | Admin claimed privately, pre-exposure |
-| 03 | Changed credentials sign-in | Default `admin`/`umami` replaced |
-| 04 | Cloudflare DNS `analytics` record | Record added in the live zone, DNS-only |
-| 05 | `dig` + DoH resolution | Verified from two independent perspectives |
-| 06 | `curl -I http://` -> 308 | HTTP redirects to HTTPS |
-| 07 | `curl -Iv https://` cert chain | Valid Let's Encrypt certificate |
-| 08 | Response headers | Security headers present |
-| 09 | Browser padlock + Umami dashboard | Public HTTPS works, real service reachable |
-| 10 | Backend port probes refused (3000, 5432) | App and database ports not public |
-| 11 | Uptime Kuma monitor **Up** | New host monitored from day one |
-
-Redact public IPv4/IPv6, Tailscale IPs, the admin username, website IDs, and
-the ACME email before committing.
-
----
+Allow `https://a.chrisalorenzo.com` in each site's Content Security Policy.
+Check that a normal page view appears in Umami and that a page preview with an
+unlisted hostname sends no event. Set the intended analytics retention period
+and decide how to exclude your own visits before evaluating totals.
 
 ## Rollback
 
-Disable the public route first, then stop the stack:
+Comment out the public Caddy block, validate the Caddyfile, and restart Caddy.
+Confirm the other public sites recover. The tracker host stops serving Umami;
+clients may get a TLS error before receiving an HTTP response because the
+Caddy site block is gone. The DNS record can be removed separately.
 
-    # 1. comment the analytics block back out in place, validate, then restart:
-    cd /opt/stayz3ro/proxy/configs/caddy
-    docker exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile &&
-      docker restart caddy
+To stop scheduled backups, run `sudo systemctl disable --now umami-backup.timer`.
+Keep the database volume and existing dumps unless the data is deliberately
+being discarded. Do not use `docker compose down -v` as a routine rollback.
 
-Confirm the existing public routes recovered before stopping Umami:
+## Phase result
 
-    cd ../umami || exit 1
-    docker compose down
-
-The Caddy restart briefly interrupts the existing public routes. If validation
-or restart fails, leave Umami running until the public route is safely removed.
-
-The `umami_db_data` volume is kept unless `-v` is added - analytics data
-survives rollback. Firewall, DNS, and SSH posture are unchanged by this
-phase. The DNS record can be left in place or removed in Cloudflare.
-
----
-
-## Phase Result
-
-When all steps pass, `https://analytics.stayz3ro.dev` serves Umami publicly
-with a valid certificate, the default admin login was replaced before the
-hostname was discoverable, Postgres is unreachable from outside its own
-internal network, the host is monitored in Uptime Kuma, and the VPS is
-running its first stateful public service.
+The public host serves the tracker script and collection endpoint only. The
+Umami dashboard is available through Tailscale Serve on the loopback-backed
+listener. PostgreSQL has no published port, startup waits for database health,
+and daily custom-format dumps are written under
+`/opt/stayz3ro/backups/umami`.

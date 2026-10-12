@@ -1,78 +1,31 @@
-# Umami Analytics Config 📊
+# Umami analytics
 
-Self-hosted, privacy-first (cookieless) web analytics for the blog and
-portfolio, deployed as the Phase 4 application behind the Phase 3 Caddy
-reverse proxy.
+The public host is `a.chrisalorenzo.com`. Caddy sends only `/script.js` and
+`/api/send` to Umami and returns 404 for other public paths. The dashboard
+uses a loopback publish on `127.0.0.1:3000`, exposed to tailnet devices by
+Tailscale Serve on port 8444.
 
-Chosen over Shlink and Vikunja - full comparison and rationale in
-[docs/phase-4-docker-app-deployment/overview.md](../../docs/phase-4-docker-app-deployment/overview.md).
-
----
+PostgreSQL 16 is on the internal `umami_internal` network. The Umami service
+also joins the external `web` network so Caddy can reach it. The database has
+no published port. Both images use immutable Docker Hub OCI index digests.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| [docker-compose.yml](docker-compose.yml) | Umami + PostgreSQL stack; joins the external `web` network; no published ports |
-| [.env.example](.env.example) | Public-safe environment template (real `.env` is gitignored, VPS-only) |
+| [docker-compose.yml](docker-compose.yml) | Umami 3.4.0 and PostgreSQL 16 stack |
+| [.env.example](.env.example) | Variable names for the private host environment file |
+| [backup-umami.sh](backup-umami.sh) | Daily custom-format PostgreSQL dump |
+| [umami-backup.service](umami-backup.service) | systemd one-shot backup service |
+| [umami-backup.timer](umami-backup.timer) | Daily timer at 03:30 UTC |
 
----
+Create `.env` from `.env.example` on the host and fill in `POSTGRES_PASSWORD`
+and `APP_SECRET`. Keep `.env` out of git. Follow the
+[Phase 4 deployment guide](../../docs/phase-4-docker-app-deployment/step-by-step.md)
+for startup, tailnet admin setup, backup installation, DNS, and Caddy order.
 
-## Architecture
-
-| Component | Network | Reachable from |
-|---|---|---|
-| `umami` (port 3000, not published) | `web` + `umami_internal` | Caddy (`web`), Postgres peer |
-| `umami-db` (Postgres 16, port 5432, not published) | `umami_internal` (internal-only) | The `umami` container only - never the `web` network, never the host |
-
-Caddy route (staged in `configs/caddy/Caddyfile`, enabled by the runbook):
-
-    analytics.{$SITE_DOMAIN} {
-        import security_headers
-        reverse_proxy umami:3000
-    }
-
----
-
-## Usage
-
-On the VPS, over Tailscale SSH, from the repo checkout:
-
-    cd configs/umami
-    cp .env.example .env
-    nano .env            # POSTGRES_PASSWORD + APP_SECRET
-    docker compose up -d
-
-Rollback:
-
-    docker compose down  # add -v to also delete analytics data - destructive
-
-Full deployment procedure (admin claim over an SSH tunnel, DNS record in
-Cloudflare, Caddy reload, validation):
-[Phase 4 step-by-step guide](../../docs/phase-4-docker-app-deployment/step-by-step.md).
-
----
-
-## First-Run Security
-
-Umami ships with default credentials (`admin` / `umami`) and has no public
-signup - but those defaults must be changed **before** the public hostname
-exists, or Certificate Transparency log scanners get a window to log in
-first. The runbook claims the admin account over an SSH tunnel to the
-container's internal Docker network IP before the Caddy route or DNS record
-is enabled - the same pattern that closed Uptime Kuma's race window in
-Phase 3.
-
----
-
-## Blog / Portfolio Embed
-
-After deployment, Umami provides a website-specific embed script for the
-Astro blog (a separate project/repo - coordinate the change there):
-
-    <script defer src="https://analytics.stayz3ro.dev/script.js"
-            data-website-id="..."></script>
-
-The `data-website-id` is created in Umami's dashboard when the website
-entry is added. Coordinate the blog-side change explicitly - the Phase 3
-lesson about parallel repos making conflicting decisions applies.
+The initial Umami credentials are `admin` / `umami`. Change the password over
+the tailnet before adding the public DNS record or enabling the Caddy route.
+The backup timer writes verified dumps and SHA-256 sidecars to
+`/opt/stayz3ro/backups/umami` and keeps 14 days of local files. Include that
+directory in the offsite backup plan when available.
