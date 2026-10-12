@@ -16,11 +16,13 @@ The project has completed Phase 3 and is now in:
 
 **Phase 4 - Docker App Deployment**
 
-App selected: **Umami** (privacy-first web analytics) at
-`analytics.stayz3ro.dev`. Scoping, candidate comparison, compose stack
-(`configs/umami/`), and the deployment runbook
-(`docs/phase-4-docker-app-deployment/step-by-step.md`) are staged; the live
-deployment is pending.
+App selected: **Umami** (privacy-first web analytics). Scoping, candidate
+comparison, compose stack (`configs/umami/`), and the deployment runbook
+(`docs/phase-4-docker-app-deployment/step-by-step.md`) were staged for
+`analytics.stayz3ro.dev`. Re-scoped 2026-10-12 after the domain move: a
+neutral host on `chrisalorenzo.com` (proposed `a.chrisalorenzo.com`), public
+tracker, tailnet-only admin. See `docs/umami-rescope-DRAFT-2026-10-12.md`;
+the staged files change at its Stage 0. The live deployment is pending.
 
 Phase 5 public-edge monitoring is live as of 2026-09-28 (see Monitoring and
 Alerts below); Phase 4 remains in progress.
