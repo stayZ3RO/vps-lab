@@ -13,6 +13,9 @@ services:
       TZ: UTC
       DATABASE_URL: postgresql://umami:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/umami
       APP_SECRET: ${APP_SECRET:?set APP_SECRET in .env}
+      # a.<domain> is proxied by Cloudflare (edge firewall accepts 80/443 from
+      # Cloudflare ranges only), so the visitor address arrives in this header.
+      CLIENT_IP_HEADER: CF-Connecting-IP
     ports:
       - "127.0.0.1:3000:3000"
     networks:

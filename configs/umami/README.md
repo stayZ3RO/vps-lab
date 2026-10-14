@@ -26,6 +26,11 @@ for startup, tailnet admin setup, backup installation, DNS, and Caddy order.
 
 The initial Umami credentials are `admin` / `umami`. Change the password over
 the tailnet before adding the public DNS record or enabling the Caddy route.
+The public `a.<domain>` record must be **proxied** through Cloudflare (orange
+cloud): the edge firewall accepts 80/443 from Cloudflare ranges only, so a
+DNS-only record leaves both the ACME challenge and every visitor timing out.
+With the proxy in front, the visitor address arrives in `CF-Connecting-IP`,
+which `CLIENT_IP_HEADER` in the compose file tells Umami to use.
 The backup timer writes verified dumps and SHA-256 sidecars to
 `/opt/stayz3ro/backups/umami` and keeps 14 days of local files. Include that
 directory in the offsite backup plan when available.
