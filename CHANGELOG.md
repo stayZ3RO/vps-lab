@@ -10,6 +10,19 @@ This changelog tracks major documentation and infrastructure milestones for the 
 
 ---
 
+## 2026-10-14: Umami deployed, public record proxied
+
+- Umami 3.4.0 and PostgreSQL 16 running on edge-01 behind Caddy; the public
+  host serves only `/script.js` and `/api/send`, admin stays tailnet-only.
+- The re-scope's DNS-only record did not work: since the 2026-10-05
+  firewall change only Cloudflare ranges reach 80/443, so Let's Encrypt
+  timed out on the challenge and so would visitors. The record is now
+  proxied; the certificate issued on the next attempt. The re-scope note
+  cited the `status` record's DNS-only precedent, which had already been
+  reversed on 2026-10-05.
+- Added `CLIENT_IP_HEADER: CF-Connecting-IP` to the Umami compose file so
+  visitor addresses are the real ones, not Cloudflare's.
+
 ## Current State
 
 | Phase | Status |
