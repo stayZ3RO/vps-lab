@@ -1,6 +1,6 @@
 # Phase 3 - Step-by-Step Guide 🛠️
 
-![Status](https://img.shields.io/badge/status-in%20progress-yellow)
+![Status](https://img.shields.io/badge/status-executed-success)
 ![Scope](https://img.shields.io/badge/scope-Reverse%20Proxy%20%2B%20HTTPS-blue)
 ![Proxy](https://img.shields.io/badge/proxy-Caddy-success)
 
@@ -9,7 +9,10 @@
 This guide is the implementation runbook for deploying the Caddy reverse proxy
 and issuing HTTPS certificates for `stayz3ro.dev`.
 
-Run it on the VPS over Tailscale SSH.
+All eleven steps were executed on 2026-08-30. See [validation.md](validation.md)
+for the execution record. The commands below preserve the original deployment
+procedure; [Current Status](../../CURRENT-STATUS.md) records later domain,
+proxy and ingress changes.
 
 ---
 
@@ -17,17 +20,17 @@ Run it on the VPS over Tailscale SSH.
 
 | Step | Task | Status |
 |---|---|---:|
-| 1 | Confirm prerequisites (DNS, firewall, Docker) | ⏳ Pending |
-| 2 | Check out the repo on the VPS | ⏳ Pending |
-| 3 | Create `.env` from the template | ⏳ Pending |
-| 4 | Validate the Caddyfile | ⏳ Pending |
-| 5 | Bring up the stack | ⏳ Pending |
-| 6 | Confirm certificate issuance | ⏳ Pending |
-| 7 | Validate HTTPS externally | ⏳ Pending |
-| 8 | Validate `www` redirect and security headers | ⏳ Pending |
-| 9 | Confirm access log is writing | ⏳ Pending |
-| 10 | Confirm backend ports are not public | ⏳ Pending |
-| 11 | Capture redacted screenshots | ⏳ Pending |
+| 1 | Confirm prerequisites (DNS, firewall, Docker) | ✅ Executed 2026-08-30 |
+| 2 | Check out the repo on the VPS | ✅ Executed 2026-08-30 |
+| 3 | Create `.env` from the template | ✅ Executed 2026-08-30 |
+| 4 | Validate the Caddyfile | ✅ Executed 2026-08-30 |
+| 5 | Bring up the stack | ✅ Executed 2026-08-30 |
+| 6 | Confirm certificate issuance | ✅ Executed 2026-08-30 |
+| 7 | Validate HTTPS externally | ✅ Executed 2026-08-30 |
+| 8 | Validate security headers; `www` redirect not applicable after retarget | ✅ Executed 2026-08-30 |
+| 9 | Confirm access log is writing | ✅ Executed 2026-08-30 |
+| 10 | Confirm backend ports are not public | ✅ Executed 2026-08-30 |
+| 11 | Capture redacted screenshots | ✅ Executed 2026-08-30 |
 
 ---
 

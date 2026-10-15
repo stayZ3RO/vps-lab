@@ -20,7 +20,7 @@ Each phase is organized like a small infrastructure case study:
 | Phase 1 - VPS Baseline & Security Hardening | ✅ Complete | [View Phase 1](phase-1-vps-baseline-security/) |
 | Phase 2 - Domain DNS & Public Routing | ✅ Complete | [View Phase 2](phase-2-domain-dns-public-routing/) |
 | Phase 3 - Reverse Proxy & HTTPS | ✅ Complete | [View Phase 3](phase-3-reverse-proxy-https/) |
-| Phase 4 - Docker App Deployment | 🚧 In Progress | [View Phase 4](phase-4-docker-app-deployment/) |
+| Phase 4 - Docker App Deployment | ✅ Deployed; evidence follow-up | [View Phase 4](phase-4-docker-app-deployment/) |
 | Phase 5 - Monitoring & Alerts | ✅ Public edge live | [View Phase 5](phase-5-monitoring-and-alerts/) |
 | Phase 6 - Backups & Disaster Recovery | ⏳ Planned | Coming soon |
 | Phase 7 - Secondary VPS / Staging | ⏳ Planned | Coming soon |
@@ -34,10 +34,10 @@ The current phase is:
 
 **Phase 4 - Docker App Deployment**
 
-App selected: **Umami** (privacy-first web analytics) at
-`analytics.stayz3ro.dev`. Scoping, compose stack, and runbook are staged;
-deployment is pending. See
-[phase-4-docker-app-deployment/](phase-4-docker-app-deployment/).
+Umami was deployed on 2026-10-14 with public tracker paths and private
+administration. [Current Status](../CURRENT-STATUS.md) records the current
+contract and outstanding checks; [Phase 4](phase-4-docker-app-deployment/)
+contains the deployment guide and validation expectations.
 
 ---
 

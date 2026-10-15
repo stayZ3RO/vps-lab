@@ -1,3 +1,7 @@
+> Archived proposal. Umami was deployed on 2026-10-14. Follow the
+> [current implementation guide](../phase-4-docker-app-deployment/step-by-step.md);
+> its proxied DNS record supersedes the DNS-only assumptions below.
+
 # Umami analytics re-scope (DRAFT)
 
 Date: 2026-10-12
@@ -469,7 +473,7 @@ The one irreversible step in the whole plan is `docker compose down -v`, which d
 
 Consumer repos (in scope for the change, still listed only): `blog/src/layouts/Base.astro`, `blog/public/_headers`, `blog/README.md`, `blog/src/content/blog/stayz3ro-dev-cloudflare.md`, `portfolio/index.html`, `portfolio/public/_headers`. Nothing in `blog/dist/**` or `portfolio/dist/**` is edited by hand; both are build output.
 
-The `ops` repo's domain-consolidation packet is the source of truth for the naming decision and needs no change. The Phase 4 doc should reference it explicitly once rewritten, so the next reader sees why the hostname moved.
+The domain-consolidation packet in the private ops repo records the naming decision. The current implementation guide linked above records the deployed public configuration.
 
 ## 13. Open decisions and uncertainty
 

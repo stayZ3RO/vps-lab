@@ -1,58 +1,33 @@
 # Scripts 🧰
 
-This folder will hold future VPS maintenance, validation, backup, and automation scripts.
+## Available Tooling
 
-No production scripts are required for Phase 1 yet.
+| File | Purpose | Where it runs |
+|---|---|---|
+| [check-relative-links.py](check-relative-links.py) | Check tracked Markdown links; `--self-test` checks the parser | Workstation and GitHub mirror docs CI |
+| [backup-umami.sh](../configs/umami/backup-umami.sh) | Write and verify a PostgreSQL custom-format dump and SHA-256 sidecar; keep 14 days locally | VPS after explicit installation |
+| [umami-backup.service](../configs/umami/umami-backup.service) | Run the backup script | Host systemd service |
+| [umami-backup.timer](../configs/umami/umami-backup.timer) | Schedule the service daily at 03:30 UTC | Host systemd timer |
 
----
+The [Umami deployment guide](../docs/phase-4-docker-app-deployment/step-by-step.md)
+contains installation and verification steps. The tooling is committed;
+[Current Status](../CURRENT-STATUS.md#next-workstream) tracks execution evidence
+still needed. Do not run host backup or deployment commands as local docs checks.
 
-## Planned Script Categories
+## Local Documentation Checks
 
-| Category | Purpose |
-|---|---|
-| Health checks | Quick VPS and service status checks |
-| Docker checks | Validate running containers, networks, and volumes |
-| Backup jobs | Back up Docker volumes, app data, and databases |
-| Restore tests | Validate recovery workflows |
-| Reverse proxy checks | Confirm routing and HTTPS behavior |
-| DNS checks | Validate domain and subdomain resolution |
-| Security checks | Review firewall, listening ports, and service exposure |
-| Deployment helpers | Standardize app deployment steps |
-
----
-
-## Future Examples
-
-Potential future scripts:
-
-| Script | Purpose |
-|---|---|
-| check-vps-baseline.sh | Validate hostname, firewall, SSH, Docker, and Tailscale |
-| check-listening-ports.sh | Show listening services and public exposure |
-| docker-backup.sh | Back up selected Docker volumes |
-| restore-test.sh | Test backup restoration |
-| dns-check.sh | Validate DNS records for stayz3ro.dev |
-| proxy-check.sh | Validate reverse proxy and HTTPS routing |
-
----
+```sh
+python3 scripts/check-relative-links.py --self-test
+python3 scripts/check-relative-links.py
+```
 
 ## Script Safety Rules
 
-Future scripts should follow these rules:
+- Keep secrets out of scripts; use private host environment files.
+- Use public-safe placeholders in examples.
+- Prefer read-only checks for validation.
+- Label mutating host commands and follow their deployment guide.
+- Verify a database dump before replacing the previous artifact.
 
-- Do not hardcode secrets
-- Do not commit API keys
-- Do not include private IPs unless sanitized
-- Use .env.example for safe placeholders
-- Prefer read-only checks where possible
-- Add comments explaining each command
-- Test scripts before documenting them
-- Avoid destructive actions unless clearly labeled
-
----
-
-## Current Status
-
-Phase 1 did not require custom scripts.
-
-This folder is included to support future automation as the VPS lab expands into DNS, reverse proxy, monitoring, backups, and multi-VPS workflows.
+Health checks, general restore drills and additional deployment automation
+remain future work. Add them to this inventory when actual scripts exist.

@@ -1,104 +1,60 @@
 # Phase 4 - Docker App Deployment 🐳
 
-![Status](https://img.shields.io/badge/status-in%20progress-yellow)
+![Status](https://img.shields.io/badge/status-deployed%20October%2014-success)
 ![Phase](https://img.shields.io/badge/phase-4-blue)
 ![App](https://img.shields.io/badge/app-Umami-success)
 ![Proxy](https://img.shields.io/badge/proxy-behind%20Caddy-success)
-![Scope](https://img.shields.io/badge/scope-app%20selection-purple)
 
 ## Phase Summary
 
-Phase 4 is preparing the first application container behind the Phase 3 Caddy
-reverse proxy, on a public subdomain, with no backend port published to the
-host. Phase 3's Kuma deployment proved the proxy pattern; deploying Umami
-would test the repeatable app-onboarding pattern: compose service, env
-template, Caddy route, DNS record, validation, evidence.
+Umami 3.4.0 and PostgreSQL 16 were deployed on 2026-10-14. The public tracker
+at `a.chrisalorenzo.com` serves `/script.js` and `/api/send` only; other public
+paths return 404. Administration uses loopback port 3000 through Tailscale
+Serve on port 8444. PostgreSQL remains on an internal-only network with no
+published port.
 
-**App selected (2026-08-30): Umami**, privacy-first web analytics, at
-`analytics.stayz3ro.dev`. It would provide visitor analytics for the blog and
-portfolio as the VPS's first stateful app (Umami + PostgreSQL). Candidate
-comparison and rationale: [overview.md](overview.md).
+The public DNS record is proxied through Cloudflare because origin
+HTTP/HTTPS accepts Cloudflare ranges only. The deployment record also notes
+the certificate issued after correcting the earlier DNS-only plan.
+[Current Status](../../CURRENT-STATUS.md) is canonical for present state and
+outstanding work; [CHANGELOG.md](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied)
+records the deployment.
 
----
-
-## What This Phase Will Demonstrate
+## What This Phase Demonstrates
 
 | Area | Demonstrated Skill |
 |---|---|
-| App deployment | Multi-container app (service + database) via Docker Compose |
-| Exposure control | App joined to the internal `web` network; only Caddy on 80/443 |
-| Configuration management | `.env.example` committed, real `.env` gitignored on the VPS |
-| DNS operations | New subdomain record in the **live** zone (Cloudflare, not Porkbun) |
-| Security sequencing | Admin account claimed over a private tunnel before public exposure |
-| Service integration | New hostname added as an Uptime Kuma monitor |
-| Evidence discipline | Redacted deployment screenshots |
-
----
-
-## Candidate Apps (Shortlist)
-
-**Decision (2026-08-30): Umami (A) selected; subdomain `analytics.stayz3ro.dev`.**
-
-The shortlist record:
-
-| # | App | Subdomain | One-line case |
-|---|---|---|---|
-| A ✅ | **Umami** - privacy-first web analytics | `analytics.stayz3ro.dev` | Real visitor stats for the blog and portfolio; first stateful service |
-| B | **Shlink** - self-hosted URL shortener | `apps.` + `api.stayz3ro.dev` | Branded short links + a real public REST API, using both staged routes |
-| C | **Vikunja** - task/project tracker | `tasks.stayz3ro.dev` or Tailscale-only | Closes a pending cross-repo tooling decision; auth/exposure tradeoff exercise |
-
-Full comparison, tradeoffs, and recommendation:
-[overview.md](overview.md).
-
----
+| App deployment | Application and PostgreSQL services managed with Docker Compose |
+| Exposure control | Public tracker paths only; loopback-backed administration through the tailnet |
+| Configuration management | Committed `.env.example`; private host environment file kept out of git |
+| DNS operations | Proxied record in the authoritative Cloudflare zone |
+| Security sequencing | Private first-run administration before enabling the public route |
+| Recovery preparation | Database dump script, checksum verification and systemd timer provided |
 
 ## Documentation
 
-| Page | Description | Status |
-|---|---|---|
-| [Overview](overview.md) | Scoping record: candidates, comparison, decision | ✅ Complete |
-| [Step-by-Step Guide](step-by-step.md) | Implementation runbook (Umami stack, tunnel claim, DNS, Caddy route, validation) | ✅ Written, pending execution |
-| [Validation Evidence](validation.md) | Checklist and screenshot evidence | ⏳ Pending execution |
-| [Architecture Diagram](../../diagrams/phase-4-docker-app-deployment.md) | App + database network layout behind Caddy | ✅ Complete |
-| [Umami Config](../../configs/umami/) | Compose stack, `.env.example`, README | ✅ Complete |
-
----
+| Page | Purpose |
+|---|---|
+| [Overview](overview.md) | Current design and historical candidate comparison |
+| [Step-by-Step Guide](step-by-step.md) | Current deployment and rollback procedure |
+| [Validation Evidence](validation.md) | Recorded results and checks still requiring evidence |
+| [Architecture Diagram](../../diagrams/phase-4-docker-app-deployment.md) | Public tracker, private administration and database boundaries |
+| [Umami Config](../../configs/umami/) | Compose stack, environment example and backup tooling |
+| [Archived re-scope](../archive/umami-rescope-DRAFT-2026-10-12.md) | Superseded proposal, retained as decision history |
 
 ## Completion Criteria
 
-| Requirement | Status |
-|---|---:|
-| App chosen and justified against candidates | ✅ Complete (Umami) |
-| Compose service layout committed (app + database, `web` network, no published ports) | ✅ Complete |
-| `.env.example` committed; real `.env` gitignored | ✅ Complete |
-| DNS record added in the live zone and validated | ⏳ Pending |
-| Caddy route enabled and validated (`caddy validate` + container restart) | ⏳ Pending |
-| App deployed and reachable externally over HTTPS | ⏳ Pending |
-| Admin account secured over a private path before exposure | ⏳ Pending |
-| Backend/database ports confirmed not publicly reachable | ⏳ Pending |
-| New hostname added as an Uptime Kuma monitor | ⏳ Pending |
-| Redacted screenshots captured | ⏳ Pending |
+| Requirement | Recorded status |
+|---|---|
+| App chosen and justified | Complete; original comparison in [overview.md](overview.md) |
+| Compose, environment example and deployment guide committed | Complete |
+| Umami and PostgreSQL deployed | Recorded 2026-10-14 |
+| Proxied DNS and certificate correction | Recorded 2026-10-14 |
+| Tracker paths public; administration tailnet-only | Recorded deployment contract |
+| Admin credential change and external backend-port checks | Execution evidence not recorded here |
+| Kuma tracker monitor and site embeds | Execution evidence not recorded here |
+| Backup timer installation and restore check | Tooling provided; execution evidence not recorded here |
+| Redacted deployment screenshots | Not yet included |
 
----
-
-## Evidence
-
-Redacted validation screenshots will be stored in a new
-`screenshots/phase-4-docker-app-deployment/` folder, following the standing
-redaction rules. See [screenshots/](../../screenshots/) for the existing
-evidence layout.
-
----
-
-## Before This Phase Deploys
-
-Review the captured, redacted Phase 3 evidence in
-[screenshots/phase-3-reverse-proxy-https/](../../screenshots/phase-3-reverse-proxy-https/)
-before changing the live deployment.
-
----
-
-## Monitoring context
-
-Phase 5 public-edge monitoring is already live. After Umami is deployed, add
-its public hostname as a Kuma monitor through the tailnet-only admin UI.
+Phase 5 public-edge monitoring is already live. Its existing monitors do not
+prove that the new Umami monitor or an independent offsite check is complete.

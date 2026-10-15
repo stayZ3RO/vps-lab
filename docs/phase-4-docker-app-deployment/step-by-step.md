@@ -7,9 +7,11 @@ admin access. Caddy passes `/script.js` and `/api/send` to Umami. Every other
 public path returns 404. Docker publishes the admin listener on loopback, and
 Tailscale Serve exposes it to tailnet devices on port 8444.
 
-The approved domain consolidation notes are in
-[`docs/umami-rescope-DRAFT-2026-10-12.md`](../umami-rescope-DRAFT-2026-10-12.md).
-The public DNS record belongs in the `chrisalorenzo.com` zone.
+Deployment was recorded on 2026-10-14 in [CHANGELOG.md](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied).
+This is the current implementation guide. The [archived re-scope draft](../archive/umami-rescope-DRAFT-2026-10-12.md)
+preserves the earlier proposal, including DNS assumptions superseded below.
+The public DNS record belongs in the `chrisalorenzo.com` zone and must be
+proxied: origin HTTP/HTTPS accepts Cloudflare ranges only.
 
 ## Deployment order
 
@@ -127,14 +129,17 @@ offsite backup source list when that backup is available.
 ## Step 6: Add the public DNS record
 
 In the Cloudflare `chrisalorenzo.com` zone, add an `A` record named `a` with
-the VPS public IPv4 address and DNS-only proxy status. Do not add a record to
-the redirect-only zone.
+the VPS public IPv4 address and **proxied** status (orange cloud). Do not add
+a record to the redirect-only zone.
 
 ```sh
 dig +short a.chrisalorenzo.com
 ```
 
-Confirm the result matches the public address configured for the VPS.
+Confirm the record in Cloudflare contains the configured origin address and
+proxying is enabled. Public DNS should return Cloudflare edge addresses, not
+the origin. A DNS-only record cannot pass the origin firewall and prevents
+visitors and the ACME challenge from reaching Caddy. Verify HTTPS in Step 8.
 
 ## Step 7: Enable the public tracker route
 
@@ -213,5 +218,7 @@ being discarded. Do not use `docker compose down -v` as a routine rollback.
 The public host serves the tracker script and collection endpoint only. The
 Umami dashboard is available through Tailscale Serve on the loopback-backed
 listener. PostgreSQL has no published port, startup waits for database health,
-and daily custom-format dumps are written under
-`/opt/stayz3ro/backups/umami`.
+and the provided backup tooling writes custom-format dumps under
+`/opt/stayz3ro/backups/umami` once installed. The deployment record confirms
+the stack and certificate; [validation.md](validation.md) separates that
+record from checks still needing execution evidence.

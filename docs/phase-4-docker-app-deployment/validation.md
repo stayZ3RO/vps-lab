@@ -1,104 +1,67 @@
 # Phase 4 - Validation Evidence 📸
 
-![Status](https://img.shields.io/badge/status-pending%20execution-yellow)
+![Status](https://img.shields.io/badge/status-deployment%20recorded-success)
 ![App](https://img.shields.io/badge/app-Umami-success)
-![Proxy](https://img.shields.io/badge/proxy-behind%20Caddy-success)
-![Domain](https://img.shields.io/badge/domain-analytics.stayz3ro.dev-purple)
+![Domain](https://img.shields.io/badge/domain-a.chrisalorenzo.com-purple)
 
-## Purpose
+## Recorded Deployment
 
-This page documents validation evidence for Phase 4: Docker App Deployment
-(Umami at `analytics.stayz3ro.dev`).
+[CHANGELOG.md](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied)
+records Umami 3.4.0 and PostgreSQL 16 running behind Caddy on 2026-10-14,
+tracker paths only on the public host, tailnet-only administration, and
+certificate issuance after switching the public record to the Cloudflare
+proxy. Origin HTTP/HTTPS accepts Cloudflare ranges only.
 
-The goal is to confirm that the app is publicly reachable over HTTPS with a
-valid certificate, that the default admin credentials were replaced before
-public exposure, that no backend or database port answers publicly, that the
-host is monitored, and that real analytics events flow from the blog.
-
-> This phase is scaffolded but not yet executed. The tables below are the
-> checklist to fill in during the run described in
-> [step-by-step.md](step-by-step.md).
-
----
+The tables below describe the current contract from
+[the Umami configuration](../../configs/umami/README.md) and
+[deployment guide](step-by-step.md). A committed configuration or procedure
+is not execution evidence. Checks beyond the deployment record remain open
+until their results are recorded.
 
 ## Validation Summary
 
-| Area | Expected Result | Status |
+| Area | Expected result | Evidence status |
 |---|---|---|
-| `umami` container | Running, no published ports, on the `web` + internal networks | ⏳ Pending |
-| `umami-db` container | Running, internal-only network, not reachable from `web` | ⏳ Pending |
-| Admin credentials | Changed from defaults over an SSH tunnel **before** DNS/route/cert existed | ⏳ Pending |
-| DNS record | `analytics.stayz3ro.dev` A record in the Cloudflare zone, DNS-only, resolves from two perspectives | ⏳ Pending |
-| Certificate | Issued by Let's Encrypt for `analytics.stayz3ro.dev` | ⏳ Pending |
-| HTTP -> HTTPS | `http://analytics.stayz3ro.dev` returns 308 to HTTPS | ⏳ Pending |
-| HTTPS | `https://analytics.stayz3ro.dev` returns 200, valid chain, Umami login | ⏳ Pending |
-| Security headers | HSTS, nosniff, DENY, Referrer-Policy present | ⏳ Pending |
-| Backend ports | 3000 (app) and 5432 (Postgres) not reachable on the public IP | ⏳ Pending |
-| Uptime Kuma monitor | New monitor for `https://analytics.stayz3ro.dev` is **Up** | ⏳ Pending |
-| Analytics events | Blog embed sends visits visible in the Umami dashboard | ⏳ Pending |
+| App and database | Umami 3.4.0 and PostgreSQL 16 running | Recorded 2026-10-14 |
+| App networks and ports | `web` plus internal database network; loopback-only port 3000 for administration | Configured in compose; external probe result not recorded here |
+| Database exposure | Internal-only network; no published database port | Configured in compose; external probe result not recorded here |
+| Admin access | Tailscale Serve on 8444 reaches the loopback-backed listener | Tailnet-only administration recorded; sign-in check not recorded here |
+| Admin credentials | Defaults replaced over the private path before public routing | Execution evidence not recorded here |
+| DNS record | `a.chrisalorenzo.com` proxied in Cloudflare; public DNS returns edge addresses | Proxy correction recorded 2026-10-14 |
+| Certificate | Valid HTTPS certificate for the tracker host | Issuance recorded 2026-10-14 |
+| Tracker script | `/script.js` returns 200 with JavaScript content type | Public tracker contract recorded; response capture not included |
+| Collection endpoint | `/api/send` accepts a valid site event | Public tracker contract recorded; event result not included |
+| Public administration | Root, `/login` and `/api/websites` return 404 | Restricted public contract recorded; response capture not included |
+| Security headers | HSTS, nosniff, DENY and Referrer-Policy on public responses | Expected from Caddy policy; response capture not included |
+| Kuma monitor | `https://a.chrisalorenzo.com/script.js` is Up; root is deliberately 404 | Execution evidence not recorded here |
+| Site embeds | Intended sites send events; previews outside `data-domains` do not | Execution evidence not recorded here |
+| Database backups | Timer produces a dump and matching checksum; restore listing succeeds | Tooling committed; host execution evidence not recorded here |
 
----
+## Evidence Still to Capture
 
-## Completion Criteria
+- Stack health and loopback-only administration mapping
+- Private sign-in after changing the initial credentials
+- Cloudflare proxied DNS record and successful HTTPS tracker requests
+- Public fallback 404 responses and inaccessible direct backend ports
+- Valid site event visible in Umami
+- Kuma tracker monitor and notification attachment
+- Backup timer, checksum verification and restore check
 
-| Requirement | Status |
-|---|---:|
-| App chosen and justified against candidates | ✅ Complete (Umami - see [overview.md](overview.md)) |
-| Compose service layout committed | ✅ Complete |
-| `.env.example` committed; real `.env` gitignored | ✅ Complete |
-| DNS record added in the live zone and validated | ⏳ Pending |
-| Caddy route enabled and validated | ⏳ Pending |
-| App deployed and reachable externally over HTTPS | ⏳ Pending |
-| Admin account secured over a private path before exposure | ⏳ Pending |
-| Backend/database ports confirmed not publicly reachable | ⏳ Pending |
-| New hostname added as an Uptime Kuma monitor | ⏳ Pending |
-| Redacted screenshots captured | ⏳ Pending |
-
----
-
-# Screenshot Evidence
-
-_Screenshots will be embedded here after execution._
-
-## 01 - Stack Running, No Published Ports
-
-## 02 - Admin Claimed Over SSH Tunnel
-
-## 03 - Changed Credentials Sign-In
-
-## 04 - Cloudflare DNS Record
-
-## 05 - DNS Resolution (dig + DoH)
-
-## 06 - HTTP 308 Redirect
-
-## 07 - Valid Certificate Chain
-
-## 08 - Security Headers
-
-## 09 - Browser Padlock, Umami Dashboard
-
-## 10 - Backend Ports Not Public
-
-## 11 - Uptime Kuma Monitor Up
-
----
+No Phase 4 deployment screenshots are included yet. Add reviewed evidence
+under `screenshots/phase-4-docker-app-deployment/` when available; retain the
+recorded deployment date rather than treating missing screenshots as an
+unexecuted deployment.
 
 ## Redaction Rules
 
-| Sensitive Item | Handling |
-|---|---|
-| Public IPv4 address | Redacted |
-| Public IPv6 address | Redacted or excluded |
-| Tailscale IP | Redacted |
-| Umami admin username | Redacted |
-| Website IDs (`data-website-id`) | Redacted |
-| ACME / account email | Redacted |
-| SSH host fingerprints | Redacted where visible |
-| Provider account data | Excluded |
-
----
+Cover sensitive values with opaque boxes before publishing screenshots.
+Exclude public origin addresses, tailnet addresses, credentials, account data,
+SSH fingerprints and personal device identifiers. Keep website identifiers
+out of screenshots unless the example deliberately needs a public identifier.
 
 ## Validation Result
 
-_To be completed after the Phase 4 run._
+Deployment and the DNS/certificate correction are recorded. Monitoring,
+site integration, detailed response captures, backup execution and screenshots
+remain unverified in this repository. [Current Status](../../CURRENT-STATUS.md#next-workstream)
+is the canonical list of remaining work.

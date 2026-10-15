@@ -10,7 +10,7 @@ The diagrams are intentionally simple and text-based so they are easy to version
 
 | Diagram | Description |
 |---|---|
-| [Architecture Overview](architecture.md) | One consolidated view: current state plus planned Cloudflare / reverse-proxy layer (Mermaid) |
+| [Architecture Overview](architecture.md) | Canonical recorded architecture, public tracker and private administration (Mermaid) |
 | [Phase 1 - VPS Baseline & Security Hardening](phase-1-vps-baseline-security.md) | Secure baseline architecture for the Netcup VPS |
 | [Phase 2 - Domain DNS & Public Routing](phase-2-domain-dns-public-routing.md) | Public DNS routing and Tailscale-only SSH model |
 | [Phase 3 - Reverse Proxy & HTTPS](phase-3-reverse-proxy-https.md) | HTTPS edge, host-based routing, staged service routes |
