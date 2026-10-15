@@ -3,7 +3,7 @@
 This folder contains redacted validation screenshots for Phase 3: Reverse
 Proxy & HTTPS.
 
-Captured during the 2026-08-30 deploy session on `netcup-prod-01` and from
+Captured during the 2026-08-30 deploy session on `edge-vps` and from
 the admin workstation, then redacted (OCR-assisted: IP / hostname / URL
 detection with bounding-box redaction, plus a human visual pass).
 

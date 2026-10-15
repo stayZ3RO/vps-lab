@@ -57,7 +57,7 @@ After this phase, SSH is restricted to Tailscale.
           |
           | SSH
           v
-    netcup-prod-01
+    edge-vps
 
 Public SSH is blocked.
 

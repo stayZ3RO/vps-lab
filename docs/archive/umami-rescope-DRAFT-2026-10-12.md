@@ -5,7 +5,7 @@
 # Umami analytics re-scope (DRAFT)
 
 Date: 2026-10-12
-Status: draft for review. Hostname decided 2026-10-12: a neutral single-letter host (proposed `a.chrisalorenzo.com`) instead of `analytics.`, to reduce silent loss from ad-block filter lists; examples below still show `analytics.` and change at Stage 0. Nothing is deployed, no files outside this draft were changed, no commits. Based on read-only inspection of `~/github/vps-lab`, the private ops notes, `~/github/blog`, `~/github/portfolio`, the Umami 3.4.0 docs and release notes, and one read-only capacity check on edge-01 (`free -h`, `df -h /`, `docker ps`).
+Status: draft for review. Hostname decided 2026-10-12: a neutral single-letter host (proposed `a.chrisalorenzo.com`) instead of `analytics.`, to reduce silent loss from ad-block filter lists; examples below still show `analytics.` and change at Stage 0. Nothing is deployed, no files outside this draft were changed, no commits. Based on read-only inspection of `~/github/vps-lab`, the private ops notes, `~/github/blog`, `~/github/portfolio`, the Umami 3.4.0 docs and release notes, and one read-only capacity check on edge-vps (`free -h`, `df -h /`, `docker ps`).
 
 ## 1. Why this draft exists
 
@@ -15,13 +15,13 @@ The Umami deployment in `configs/umami/` and `docs/phase-4-docker-app-deployment
 |---|---|
 | `chrisalorenzo.com` | Portfolio (Cloudflare Pages) |
 | `blog.chrisalorenzo.com` | Blog (Cloudflare Pages) |
-| `status.chrisalorenzo.com` | Uptime Kuma public status page (edge-01, Caddy) |
+| `status.chrisalorenzo.com` | Uptime Kuma public status page (edge-vps, Caddy) |
 | `stayz3ro.dev`, `www.stayz3ro.dev` | 301 to `https://blog.chrisalorenzo.com` |
 | `status.stayz3ro.dev` | 301 to `https://status.chrisalorenzo.com` |
 
 The `stayz3ro.dev` registration is kept on purpose, and it is now redirect-only. Deploying a brand new tracker host under a redirect-only domain would fork the analytics story across two domains and leave the blog embed pointing at a hostname that only redirects. This draft re-scopes the deployment to the consolidated domain and folds in the things the original plan could not know: the current Umami major version, the Postgres-only requirement, and a public/admin split that keeps the dashboard off the internet.
 
-What stays the same: Umami plus PostgreSQL on edge-01 behind Caddy, no published application ports, the external `web` network, and the internal-only database network. What changes: hostname, image pin, DB minimum and timezone, the public surface (tracker only), the admin access path, the Kuma monitor target, and the backup and privacy sections.
+What stays the same: Umami plus PostgreSQL on edge-vps behind Caddy, no published application ports, the external `web` network, and the internal-only database network. What changes: hostname, image pin, DB minimum and timezone, the public surface (tracker only), the admin access path, the Kuma monitor target, and the backup and privacy sections.
 
 ## 2. Hostname proposal
 
@@ -37,7 +37,7 @@ One caveat worth a decision before Stage 3: many ad-blocker and privacy filter l
 
 1. Keep `analytics.chrisalorenzo.com` and accept partial data loss from filtered browsers.
 2. Use a neutral host such as `a.chrisalorenzo.com` or `t.chrisalorenzo.com`, which some lists do not match.
-3. Serve the tracker same-origin from the Pages sites through a Pages Function or Worker proxy (`/u/script.js` and `/u/api/send` forwarded to edge-01). This defeats most filter lists and needs no new CSP origin, at the cost of a proxy to maintain and one more moving part on the Pages side.
+3. Serve the tracker same-origin from the Pages sites through a Pages Function or Worker proxy (`/u/script.js` and `/u/api/send` forwarded to edge-vps). This defeats most filter lists and needs no new CSP origin, at the cost of a proxy to maintain and one more moving part on the Pages side.
 
 Recommendation: option 1 or 2 for the first deployment, because both keep the origin count at one and the validation simple. Note the choice in the commit message either way, since it changes the embed snippet and the CSP entries.
 
@@ -77,12 +77,12 @@ Publish Umami on host loopback and expose that only over the tailnet, which is e
 ```
 
 ```
-# on edge-01, after the stack is up (Kuma already holds 8443)
+# on edge-vps, after the stack is up (Kuma already holds 8443)
 tailscale serve --bg 8444 http://127.0.0.1:3000
 tailscale serve status
 ```
 
-Result: `https://edge-01.<tailnet>.ts.net:8444` reaches the Umami login from tailnet devices only, with the node's Tailscale certificate, and nothing about the admin surface is public. `127.0.0.1` binds are not reachable from the internet, and UFW still only allows 22 (tailnet), 80 and 443.
+Result: `https://edge-vps.<tailnet>.ts.net:8444` reaches the Umami login from tailnet devices only, with the node's Tailscale certificate, and nothing about the admin surface is public. `127.0.0.1` binds are not reachable from the internet, and UFW still only allows 22 (tailnet), 80 and 443.
 
 The alternative, if one hostname for both surfaces is preferred, is a Caddy matcher keyed on source address rather than a separate listener:
 
@@ -106,9 +106,9 @@ Tradeoffs worth writing down before choosing: the `remote_ip` form keeps one hos
 - Default credentials are `admin` / `umami`, created when the database is first initialised. Change the password on first login in Stage 2, before any public route exists, even though the 3.1 design keeps that page private anyway.
 - Env stays as staged: `DATABASE_URL`, `APP_SECRET`, `POSTGRES_PASSWORD`, plus the database/user/db names in the `db` service. Do not add `CLOUD_MODE`. Leave `MCP_ENABLED` unset: MCP is self-hosted-off by default in 3.4.0, and if it is wanted later it must sit behind the tailnet listener, never the public tracker route.
 
-## 5. Resource fit on edge-01
+## 5. Resource fit on edge-vps
 
-Measured 2026-10-12, read-only on edge-01 (`free -h`, `df -h /`, `docker ps`):
+Measured 2026-10-12, read-only on edge-vps (`free -h`, `df -h /`, `docker ps`):
 
 | Resource | Reading |
 |---|---|
@@ -133,7 +133,7 @@ For a public edge host, add ceilings so one container cannot starve Caddy and Ku
       retries: 6
 ```
 
-Then gate startup order with `depends_on: { db: { condition: service_healthy } }` so Umami does not race the database on a cold boot, and re-check `free -h` on edge-01 during Stage 1 with both containers running.
+Then gate startup order with `depends_on: { db: { condition: service_healthy } }` so Umami does not race the database on a cold boot, and re-check `free -h` on edge-vps during Stage 1 with both containers running.
 
 ## 6. Compose changes to `configs/umami/docker-compose.yml`
 
@@ -155,7 +155,7 @@ Unchanged on purpose: external `web` network (shared with Caddy and Kuma), inter
 Proposed file (for review; nothing was applied):
 
 ```yaml
-# Umami analytics stack on edge-01. Public surface is the tracker only
+# Umami analytics stack on edge-vps. Public surface is the tracker only
 # (see docs/umami-rescope-DRAFT-2026-10-12.md section 3). Admin is reached
 # over the tailnet via the loopback publish on port 3000.
 name: umami
@@ -214,7 +214,7 @@ The Caddy container reaches `umami:3000` over `web`, so no Caddyfile volume chan
 ## 7. Cloudflare DNS record
 
 - Zone: `chrisalorenzo.com` (the live zone for every public host). Do not add anything to `stayz3ro.dev`; that zone is redirect-only now.
-- Record: type `A`, name `analytics`, content = the edge-01 public IPv4, **Proxy status: DNS only (grey cloud)**, TTL Auto. Add an `AAAA` only if edge-01 has a public IPv6 address to serve on.
+- Record: type `A`, name `analytics`, content = the edge-vps public IPv4, **Proxy status: DNS only (grey cloud)**, TTL Auto. Add an `AAAA` only if edge-vps has a public IPv6 address to serve on.
 - Why DNS-only: Caddy terminates TLS and obtains its own Let's Encrypt certificate. A proxied record puts Cloudflare in front of the ACME HTTP-01 challenge (the usual cause of the "cert never issues" failure), adds a second TLS layer, and hides real client addresses from Caddy, which would also break the optional `remote_ip` admin matcher in 3.3. The consolidation packet already settled on DNS-only for `status.chrisalorenzo.com`, so this matches the precedent.
 - Order: bring the stack up and claim the admin account first (Stage 1 and 2), then add the record (Stage 3), then enable the Caddy block (Stage 4). Adding the record before the Caddy block is harmless, HTTPS for the new name simply fails the handshake until Caddy has a certificate for it.
 - Validation, from two perspectives:
@@ -224,9 +224,9 @@ dig +short analytics.chrisalorenzo.com
 dig +short analytics.chrisalorenzo.com @1.1.1.1
 ```
 
-  Expect the edge-01 address from both. If a public resolver lags, re-check after the record TTL.
+  Expect the edge-vps address from both. If a public resolver lags, re-check after the record TTL.
 - Housekeeping: leave the apex, `www`, `blog`, `status` and `ntfy` records exactly as they are. The `stayz3ro.dev` redirect rules are unrelated to this record.
-- Inventory note: the blog and portfolio `_headers` files deliberately omit `includeSubDomains` from HSTS "until a complete HTTPS subdomain inventory" exists. Adding `analytics.` extends that inventory to five HTTPS-only hosts (apex and blog on Pages, `status.`, `ntfy.`, `analytics.` on edge-01). Worth recording, not worth changing in this deployment.
+- Inventory note: the blog and portfolio `_headers` files deliberately omit `includeSubDomains` from HSTS "until a complete HTTPS subdomain inventory" exists. Adding `analytics.` extends that inventory to five HTTPS-only hosts (apex and blog on Pages, `status.`, `ntfy.`, `analytics.` on edge-vps). Worth recording, not worth changing in this deployment.
 
 ## 8. Blog and portfolio changes (separate repos, listed only)
 
@@ -302,7 +302,7 @@ find "$dir" -name 'umami-*.dump' -mtime +14 -delete
 
 - Pair it with a systemd timer (daily 03:30 UTC is a fine slot, before the snapshot window) so it runs without a shell.
 - Then have the planned offsite backup's Kopia snapshot `/opt/stayz3ro/backups/umami` together with the compose directory. That directory is the interface between this stack and the backup system: keep the dumps there, keep local retention short, and let B2 hold the long history.
-- If the offsite backup (Kopia plus B2) is not live yet, run the timer anyway so dumps accumulate locally, and add the kopia source to the offsite backup checklist. Also settle whether edge-01 is a Kopia source at all today: the current papers describe Kopia and B2 for the lab and backup targets, so this may be a new source to inventory.
+- If the offsite backup (Kopia plus B2) is not live yet, run the timer anyway so dumps accumulate locally, and add the kopia source to the offsite backup checklist. Also settle whether edge-vps is a Kopia source at all today: the current papers describe Kopia and B2 for the lab and backup targets, so this may be a new source to inventory.
 - Monthly restore drill, in the spirit of the W7a canary: `pg_restore --list` on the newest dump as the cheap check, plus a real restore into a throwaway database once a month to prove the artifact. A dump that has never been restored is a theory.
 - Version note: `pg_dump` and `pg_restore` from the 16 image cover 16 and 17 servers. If the server is bumped later, take dumps from the newer image.
 - Rollback: this section is additive. `systemctl disable --now umami-backup.timer`, remove the unit and the script, and the running stack is untouched. Dumps are plain files.
@@ -317,25 +317,25 @@ Facts from the Umami FAQ and tracker configuration doc, which is where any publi
 - **Scope the tracker.** `data-domains` on each tag keeps preview and staging hostnames out of the data, so what lands in the dashboard maps to production pages only.
 - **No cross-site tracking.** Umami never tracks a user across websites (FAQ), and each site is a separate website entry with its own ID.
 - **Retention is your decision.** Self-hosted Umami keeps data indefinitely unless pruned (FAQ). Pick a window, for example 12 months of pageviews, prune on a schedule, and make the backup retention match so the dump does not quietly become the longer-lived copy.
-- **Where the addresses do persist.** The tracker payload does not carry the IP, but the server necessarily sees it, and Caddy's JSON access log on edge-01 records client addresses for these requests as it already does for every other host (10 MiB rolling, 10 files kept). That is the local copy to reason about in any privacy note, and it is governed by the existing log policy, not by Umami.
+- **Where the addresses do persist.** The tracker payload does not carry the IP, but the server necessarily sees it, and Caddy's JSON access log on edge-vps records client addresses for these requests as it already does for every other host (10 MiB rolling, 10 files kept). That is the local copy to reason about in any privacy note, and it is governed by the existing log policy, not by Umami.
 - **Data location.** Rows live in Postgres on the Netcup VPS; the sites themselves are served from Cloudflare Pages. If a privacy line is ever published for the blog or portfolio, state both, plus the cookieless and DNT behaviour above.
 - Optional but recommended: use the documented "exclude my own visits" route (a local storage or query-param convention on the tracker) so internal browsing does not pollute short-term numbers. Decide it before the first month of data, not after.
 
 ## 11. Staged rollout, validation and rollback
 
-Every stage is independently reversible, and no stage exposes the dashboard. Run the edge-01 work over the Tailscale SSH alias. Do not `git pull` in the live checkout: the Phase 4 runbook records that it predates a history rewrite. Stage the changed files with `scp` as the existing runbook already describes.
+Every stage is independently reversible, and no stage exposes the dashboard. Run the edge-vps work over the Tailscale SSH alias. Do not `git pull` in the live checkout: the Phase 4 runbook records that it predates a history rewrite. Stage the changed files with `scp` as the existing runbook already describes.
 
 ### Stage 0, prepare (workstation only)
 
 - [ ] Branch in `vps-lab`, apply the section 6 changes and the section 3.1 Caddy block (commented out, as today).
 - [ ] Confirm the pinned tag actually exists before touching the VPS: `docker manifest inspect umamisoftware/umami:3.4.0 >/dev/null && echo tag-ok`.
 - [ ] Syntax-check the compose without creating a real `.env`: `POSTGRES_PASSWORD=x APP_SECRET=y docker compose config --quiet`.
-- [ ] Rollback: discard the branch. Nothing has touched edge-01.
+- [ ] Rollback: discard the branch. Nothing has touched edge-vps.
 
 ### Stage 1, stack up, no public route, no DNS record
 
 - [ ] `scp` the compose and `.env.example` into the live umami directory (same shape as the runbook Step 1).
-- [ ] On edge-01: `cp .env.example .env`, fill `POSTGRES_PASSWORD` and `APP_SECRET` (`openssl rand -base64 32`), `chmod 600 .env`.
+- [ ] On edge-vps: `cp .env.example .env`, fill `POSTGRES_PASSWORD` and `APP_SECRET` (`openssl rand -base64 32`), `chmod 600 .env`.
 - [ ] `docker compose config --quiet` (the `--quiet` matters: the resolved config prints the password inside `DATABASE_URL`).
 - [ ] `docker compose up -d && docker compose ps` and `docker compose logs --tail=40 umami`.
 
@@ -345,7 +345,7 @@ Validation:
 - [ ] Logs show the database migrations completing, no restart loop.
 - [ ] `ss -tlnp` on the host shows `127.0.0.1:3000` for the app and nothing for 5432; `docker port umami` prints `127.0.0.1:3000`.
 - [ ] From the workstation, confirm neither port is reachable: `nc -vz <edge-public-ip> 3000` and `nc -vz <edge-public-ip> 5432` should both refuse or time out.
-- [ ] `free -h` on edge-01 again with both containers up (expect roughly 1 GiB more used, still several GiB free).
+- [ ] `free -h` on edge-vps again with both containers up (expect roughly 1 GiB more used, still several GiB free).
 
 Rollback: `docker compose down` (keep the volume; add `-v` only if the data is meant to be discarded).
 
@@ -482,7 +482,7 @@ Decisions to settle before Stage 0, each with a recommendation:
 1. Hostname: `analytics.chrisalorenzo.com` (recommended), a neutral name, or a same-origin proxy. This changes the embed snippet and the CSP entries, so decide first.
 2. Admin exposure: loopback plus `tailscale serve` on 8444 (recommended, matches Kuma) or a single hostname with the `remote_ip` matcher.
 3. Postgres major: stay on 16 (recommended, already staged) or move to 17. Either way, pin by digest.
-4. Backups: does edge-01 become an offsite backup (Kopia) source, and on what schedule? Recommended: yes, snapshot the dump directory daily.
+4. Backups: does edge-vps become an offsite backup (Kopia) source, and on what schedule? Recommended: yes, snapshot the dump directory daily.
 5. Retention: pick a pageview retention window (for example 12 months) and match the backup retention to it.
 6. Exclude-your-own-visits mechanism, decided before the first month of data.
 
@@ -491,14 +491,14 @@ Explicit uncertainty, so nothing here is read as measured fact:
 - The tracker's exact collection paths: `/script.js` is confirmed from the docs, and `/api/send` is the v2/v3 collection path, but I did not verify the pixel route or any v3-specific route from the container. Confirm from the browser Network tab in Stage 4 before treating the matcher as final.
 - The pinned tag: `umamisoftware/umami:3.4.0` is confirmed to exist on Docker Hub today (queried), and it matches the repo the staged compose already uses. The docs' alternative registry (`docker.umami.is/umami-software/umami`) is shown with `:latest` only, so verify the exact version tag with `docker manifest inspect` in Stage 0.
 - Memory figures for Umami and Postgres are typical ranges, not measurements on this host. The Stage 1 `free -h` reading is the real number.
-- The `tailscale serve` off syntax differs between client versions; check `tailscale serve --help` on edge-01 before relying on the rollback line.
+- The `tailscale serve` off syntax differs between client versions; check `tailscale serve --help` on edge-vps before relying on the rollback line.
 - This is a fresh install, not a migration: no Umami instance has ever run, so there is no existing analytics database to preserve or upgrade. That is also why the version pin can be chosen freely now.
 - No load, soak or multi-user testing has been done. The sizing assumes one admin and low public traffic.
 
 ## Sources
 
 - Read-only repo inspection: `vps-lab` (`CURRENT-STATUS.md`, `ROADMAP.md`, `configs/umami/*`, `configs/caddy/Caddyfile`, `docs/phase-4-docker-app-deployment/step-by-step.md`), the private ops notes, `blog` (`astro.config.mjs`, `src/layouts/Base.astro`, `public/_headers`, `README.md`, content mentions), `portfolio` (`index.html`, `public/_headers`).
-- Edge-01 capacity, one read-only command on 2026-10-12: `free -h; df -h /; docker ps --format "{{.Names}} {{.Image}}"`.
+- edge-vps capacity, one read-only command on 2026-10-12: `free -h; df -h /; docker ps --format "{{.Names}} {{.Image}}"`.
 - Umami: GitHub releases API (latest release v3.4.0, published 2026-09-17), `umami.is/docs/install` (PostgreSQL minimum 12.14, UTC recommendation), `umami.is/docs/faq` (no cookies, no PII, retention, supported databases), `umami.is/docs/tracker-configuration` (data-domains, data-do-not-track since v2.17.0, data-host-url), `umami.is/docs/collect-data` (tracker in the head), Docker Hub tags API for `umamisoftware/umami`.
 
 Draft only. No deployment, no repo change outside this file, no commits.

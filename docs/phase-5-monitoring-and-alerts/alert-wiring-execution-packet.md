@@ -52,7 +52,7 @@ Discord server.
 
 ## 3. Prerequisites you provide
 
-- SSH access to `netcup-prod-01` over Tailscale as the existing admin user,
+- SSH access to `edge-vps` over Tailscale as the existing admin user,
   and the Kuma admin credentials.
 - A Discord server where you can create a channel for public-edge alerts. The
   channel must be different from the one the LAN infrastructure stack posts
@@ -84,8 +84,8 @@ made. Commands that need `sudo` or the Kuma credentials were not run.
 Commands (read-only):
 
 ```sh
-ssh -o BatchMode=yes netcup-prod-01 'hostname; uptime; id'
-ssh -o BatchMode=yes netcup-prod-01 'docker ps --format "{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"'
+ssh -o BatchMode=yes edge-vps 'hostname; uptime; id'
+ssh -o BatchMode=yes edge-vps 'docker ps --format "{{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"'
 curl -sS -o /dev/null -w '%{http_code}\n' https://status.stayz3ro.dev/
 ```
 
@@ -93,7 +93,7 @@ For a repeat of the monitor and provider counts, run three narrow read-only
 counts inside the container. Do not copy the database off the host.
 
 ```sh
-ssh -o BatchMode=yes netcup-prod-01 'docker exec -i uptime-kuma sqlite3 "file:/app/data/kuma.db?mode=ro"' <<'SQL'
+ssh -o BatchMode=yes edge-vps 'docker exec -i uptime-kuma sqlite3 "file:/app/data/kuma.db?mode=ro"' <<'SQL'
 select count(*) from monitor;
 select count(*) from notification;
 select count(*) from status_page;
@@ -104,7 +104,7 @@ Findings:
 
 | Item | Result |
 |---|---|
-| Host | `netcup-prod-01`, up 35 days, admin user in the `docker` group |
+| Host | `edge-vps`, up 35 days, admin user in the `docker` group |
 | Running containers | `caddy` (`caddy:2-alpine`, ports 80 and 443) and `uptime-kuma` (`louislam/uptime-kuma:1`, healthy, no published port) |
 | Kuma application version | 1.23.17 |
 | Existing monitors | none (0) |
@@ -246,10 +246,10 @@ The private path is an SSH local port forward to the Kuma container, matching
 the access method used at first-run. Get the container address, then tunnel.
 
 ```sh
-KUMA_IP=$(ssh -o BatchMode=yes netcup-prod-01 \
+KUMA_IP=$(ssh -o BatchMode=yes edge-vps \
   "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' uptime-kuma")
 echo "$KUMA_IP"
-ssh -N -L "3001:${KUMA_IP}:3001" netcup-prod-01
+ssh -N -L "3001:${KUMA_IP}:3001" edge-vps
 ```
 
 Leave the tunnel running and open `http://localhost:3001` in a browser. Run

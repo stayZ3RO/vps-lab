@@ -92,7 +92,7 @@ After changing the hostname, the server should also have a matching local hosts 
 
 Without that, sudo can show a warning like:
 
-    sudo: unable to resolve host netcup-prod-01
+    sudo: unable to resolve host edge-vps
 
 The fix was to ensure the hostname was reflected in `/etc/hosts`.
 

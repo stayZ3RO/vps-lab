@@ -25,7 +25,7 @@ and [the current guide](../docs/phase-4-docker-app-deployment/step-by-step.md).
                               ->  Cloudflare edge -> restricted VPS origin
          |
          v
-     Netcup VPS - netcup-prod-01
+     Netcup VPS - edge-vps
          |
          ├── HTTP/HTTPS from Cloudflare ranges only (including DOCKER-USER)
          ├── SSH is Tailscale only
@@ -76,7 +76,7 @@ Site embed example (integration evidence not recorded here, Cloudflare Pages)
          | SSH; Kuma admin through tailscale serve on port 8443
          | Umami admin through tailscale serve on port 8444 to loopback port 3000
          v
-     netcup-prod-01
+     edge-vps
 
 ---
 

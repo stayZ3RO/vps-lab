@@ -72,7 +72,7 @@ Phase 1 is complete because:
 
 ## 02 - Hostname Validation
 
-Confirms the VPS hostname is configured cleanly as netcup-prod-01.
+Confirms the VPS hostname is configured cleanly as edge-vps.
 
 ![Hostname validation](../../screenshots-redacted/phase-1-vps-baseline-security/02-hostnamectl.png)
 

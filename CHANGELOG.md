@@ -12,7 +12,7 @@ This changelog tracks major documentation and infrastructure milestones for the 
 
 ## 2026-10-14: Umami deployed, public record proxied
 
-- Umami 3.4.0 and PostgreSQL 16 running on edge-01 behind Caddy; the public
+- Umami 3.4.0 and PostgreSQL 16 running on edge-vps behind Caddy; the public
   host serves only `/script.js` and `/api/send`, admin stays tailnet-only.
 - The re-scope's DNS-only record did not work: since the 2026-10-05
   firewall change only Cloudflare ranges reach 80/443, so Let's Encrypt
@@ -78,7 +78,7 @@ Status: ✅ Complete
 ## Completed
 
 - Provisioned Netcup VPS
-- Configured hostname as `netcup-prod-01`
+- Configured hostname as `edge-vps`
 - Created non-root sudo user
 - Confirmed sudo access
 - Validated SSH service status
@@ -188,7 +188,7 @@ stack, and all four Phase 3 docs were retargeted: this VPS now serves
 never served here. `apps` and `api` remain staged for later.
 
 Deployed 2026-08-30, all 11 runbook steps executed and validated on
-`netcup-prod-01` (`docs/phases/phase-3-reverse-proxy-https/step-by-step.md`):
+`edge-vps` (`docs/phases/phase-3-reverse-proxy-https/step-by-step.md`):
 
 - `Caddyfile` + `docker-compose.yml` (Caddy + Uptime Kuma) deployed;
   `docker compose up -d` brought both containers up healthy
@@ -264,7 +264,7 @@ target for Phase 6), and the smallest abuse surface for a first public app.
 
 ## Pending
 
-- Execute the runbook on `netcup-prod-01`
+- Execute the runbook on `edge-vps`
 - Wire the embed script into the Astro blog (separate repo)
 
 ---

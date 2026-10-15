@@ -64,7 +64,7 @@ This phase answers the question:
 | Area | Result |
 |---|---|
 | VPS provider | Netcup |
-| Hostname | netcup-prod-01 |
+| Hostname | edge-vps |
 | Operating system | Ubuntu Linux |
 | Admin model | Non-root sudo user |
 | SSH access | Key-based authentication |
@@ -86,7 +86,7 @@ This phase answers the question:
           |
           | SSH Key Authentication / Tailscale
           v
-    Netcup VPS - netcup-prod-01
+    Netcup VPS - edge-vps
           |
           ├── UFW Firewall
           │     ├── SSH
