@@ -5,8 +5,9 @@
 base-url: "https://ntfy.chrisalorenzo.com"
 listen-http: ":80"
 
-# Caddy is the only proxy in front (Cloudflare record is DNS-only), so the
-# default X-Forwarded-For header identifies visitors for rate limiting.
+# Cloudflare fronts Caddy; the public record is proxied and origin HTTP/HTTPS
+# accepts Cloudflare ranges only. Verify forwarded-client headers when changing
+# either proxy, because ntfy uses them for visitor rate limiting.
 behind-proxy: true
 
 # Private instance: nothing is readable or writable without a user or token.

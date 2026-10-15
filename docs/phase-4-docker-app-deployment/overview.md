@@ -1,66 +1,41 @@
 # Phase 4 - Docker App Deployment 🐳
 
----
-
 ## Quick Navigation
 
 | Page | Link |
 |---|---|
 | Phase 4 Home | [README](README.md) |
-| Overview | [overview.md](overview.md) |
-| Step-by-Step Guide | To be written after app selection |
-| Validation Evidence | To be written after app selection |
+| Step-by-Step Guide | [step-by-step.md](step-by-step.md) |
+| Validation Evidence | [validation.md](validation.md) |
+| Current Status | [CURRENT-STATUS.md](../../CURRENT-STATUS.md) |
 
----
+## Implemented Design
 
-![Status](https://img.shields.io/badge/status-app%20chosen-yellow)
-![Phase](https://img.shields.io/badge/phase-4-blue)
-![App](https://img.shields.io/badge/app-Umami-success)
-![Domain](https://img.shields.io/badge/domain-stayz3ro.dev-purple)
+Umami 3.4.0 and PostgreSQL 16 were deployed on 2026-10-14. The public host
+`a.chrisalorenzo.com` exposes only `/script.js` and `/api/send` through Caddy;
+other public paths return 404. Administration uses loopback port 3000 through
+Tailscale Serve on port 8444. PostgreSQL has no published port and uses its
+own internal-only network. Umami also joins `web` so Caddy can reach it.
 
-## Overview
+The public record must be proxied through Cloudflare. Since 2026-10-05,
+origin HTTP/HTTPS accepts Cloudflare ranges only, including Docker-published
+proxy ports through `DOCKER-USER`. The earlier DNS-only proposal prevented
+the ACME challenge and visitors from reaching the origin. The proxied record
+and `CLIENT_IP_HEADER: CF-Connecting-IP` correction are recorded in
+[CHANGELOG.md](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied).
 
-Phase 3 left the VPS with a working pattern: Caddy terminates TLS on 80/443,
-Uptime Kuma runs on the internal `web` network, backend ports are never
-published, and `apps` / `api` subdomain routes sit staged in the `Caddyfile`.
-Phase 4 uses that pattern for its intended purpose: deploying the first real
-application container.
+The [deployment guide](step-by-step.md) owns setup and rollback instructions.
+[Validation](validation.md) separates the deployment record from remaining
+monitoring, site-integration, backup-execution and screenshot checks. The
+[archived draft](../archive/umami-rescope-DRAFT-2026-10-12.md) preserves the
+re-scope proposal, not current DNS or operational instructions.
 
-> **Decision (2026-08-30): Umami (Candidate A) selected**, at
-> `analytics.stayz3ro.dev`. This page is the scoping record - candidates,
-> tradeoffs, and the reasoning behind the choice - plus the deployment
-> pattern the chosen app now follows in
-> [step-by-step.md](step-by-step.md).
+## Historical Scoping Record
 
----
-
-## Objective
-
-Deploy one public Dockerized app that:
-
-- Runs as a multi-container Compose service (application + database)
-- Is reached only via Caddy on a subdomain, over HTTPS
-- Stores its state in named volumes on internal Docker networks
-- Has its configuration documented publicly (`.env.example`) with real
-  secrets kept on the VPS only
-- Produces a repeatable onboarding runbook. The second app should be faster
-  than the first
-
----
-
-## Why This Phase Matters
-
-Phases 1-3 built a door with nothing behind it except a status page. Phase 4
-answers the question the whole lab exists to answer:
-
-> Can this VPS run a real, stateful, publicly reachable service, and recover,
-> document, and monitor it like production?
-
-When deployed, Umami would create the first real app backup target for Phase 6
-and another workload for the already-live Phase 5 watcher. Its design shapes
-the backup plan and the new monitor.
-
----
+The candidate comparison below preserves the original selection reasoning.
+Its proposed hosts, port layouts, resource estimates and future-work language
+are historical. Use the implemented design above and the current guide for
+Umami deployment.
 
 ## Selection Criteria
 
@@ -208,7 +183,7 @@ for the parallel infra/certs/content tracks.
 | Option | Why not now |
 |---|---|
 | Grafana / Prometheus | Public-edge monitoring is already live with Kuma; this phase does not add an internal metrics stack. |
-| Forgejo | Not a Phase 4 VPS app. Forgejo as the primary Git remote was approved on 2026-09-27 for a separate build; it is not deployed yet. |
+| Forgejo | Separate Git hosting, outside this VPS app phase. Forgejo is now the primary remote; GitHub is the push mirror. |
 | Nextcloud | Too heavy for this VPS class alongside Caddy + Kuma |
 | Memos / linkding / FreshRSS | Light and viable, but weak ties to the portfolio/blog goals, the criteria they'd win on don't rank |
 | Another static site | Static content belongs on Cloudflare Pages, not on a stateful VPS |
@@ -236,144 +211,20 @@ deployed behind Caddy later without losing anything.
 
 ---
 
-## Deployment Pattern (Common to All Candidates)
+## Deployment and Validation
 
-Whichever app wins, Phase 4 follows the same shape. This section is the plan;
-the concrete runbook (`step-by-step.md`) gets written after selection.
-
-### 1. Compose Layout
-
-    configs/<app>/
-      docker-compose.yml    # app + postgres, joins `web` network, no published ports
-      .env.example          # committed, public-safe
-      .env                  # gitignored, VPS-only
-      README.md             # what it is, how it runs
-
-The app's compose file joins the existing `web` network so Caddy can reach
-it by container name; nothing else changes in the proxy stack except the
-Caddyfile.
-
-### 2. DNS (Cloudflare, not Porkbun)
-
-Add the chosen subdomain's record in **Cloudflare's dashboard**, the zone
-the registry actually delegates to. Verify the delegation first:
-
-    dig NS stayz3ro.dev          # must show Cloudflare nameservers
-    # add record in Cloudflare, then:
-    dig +short analytics.stayz3ro.dev   # (or the chosen host)
-
-### 3. Caddy Route
-
-Add or uncomment the site block, importing `security_headers`:
-
-    analytics.{$SITE_DOMAIN} {
-        import security_headers
-        reverse_proxy umami:3000
-    }
-
-Validate and restart. `admin off` prevents a live reload, and the restart
-briefly interrupts the existing public routes:
-
-    cd /opt/stayz3ro/proxy/configs/caddy || exit 1
-    # validate, same throwaway-container pattern as Phase 3
-    docker run --rm -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
-      --env-file .env \
-      caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile &&
-      docker restart caddy
-
-If validation fails, stop; the proxy must keep the current configuration.
-
-### 4. Secure Before Public
-
-If the app has an unauthenticated first-run setup, claim the admin account
-over an SSH tunnel to the container's internal Docker network IP, the same
-pattern that closed Uptime Kuma's race window. Do this **before** enabling
-the route or the DNS record, so Certificate Transparency never advertises
-an unclaimed hostname.
-
-### 5. Validate
-
-- `curl -I` on the new host: 308 from HTTP, 200 from HTTPS, security headers
-- Certificate issuance confirmed in the access log (not `docker compose
-  logs`, Caddy logs to the file)
-- Backend and Postgres ports confirmed not reachable on the public IP
-- Browser padlock and the app UI loaded
-- New hostname added as an Uptime Kuma monitor, then confirmed reporting
-
-### 6. Evidence
-
-Redacted screenshots into `screenshots/phase-4-docker-app-deployment/`,
-following the standing redaction rules (public IPs, Tailscale IPs, emails).
-
----
-
-## Exposure Model After Phase 4
-
-| Surface | Exposure |
-|---|---|
-| HTTP / HTTPS | Public (unchanged) |
-| `status.chrisalorenzo.com/status/main` (Kuma status page) | Public; admin paths return 404 |
-| Kuma admin | Tailnet-only through `tailscale serve` on port 8443 |
-| New app subdomain | Public behind Caddy + auth |
-| App + database containers | Internal `web` network only, no published ports |
-| App state (volumes) | On-host named volumes; backup story is Phase 6 |
-| SSH | Tailscale only (unchanged) |
-| UFW | No new rules needed, 80/443 already open |
-
----
-
-## Validation Approach
-
-Phase 4 will be validated with:
-
-- External `curl` checks: redirect, 200, valid chain, security headers
-- Backend/DB port probes from outside confirming nothing but 80/443 answers
-- Caddy access log entries for the new host (JSON)
-- The app performing its purpose end-to-end (e.g. for Umami: the blog's embed
-  script producing real visit data)
-- An Uptime Kuma monitor on the new hostname going green
-
-Details land in `validation.md` after app selection.
-
----
-
-## Decision Points
-
-| # | Decision | Status |
-|---|---|---|
-| 1 | Which app | ✅ Decided: A (Umami) |
-| 2 | Subdomain naming | ✅ Decided: new `analytics.stayz3ro.dev` record in the Cloudflare zone |
-| 3 | Vikunja placement (only if C won) | Moot (A won) - stays with the private operations track |
-| 4 | Second app in this phase? | Scope stays **one app**; a second app would reuse this runbook in a later pass |
-
----
-
-## Prerequisite (Before Any Deployment)
-
-Capture the 9 outstanding Phase 3 evidence screenshots
-(`screenshots/phase-3-reverse-proxy-https/README.md`) while the current
-stack is still the only thing running. Phase 4 changes the live deployment;
-that evidence window closes when it does.
-
----
+Follow [step-by-step.md](step-by-step.md) for compose startup, private account
+setup, backup installation, proxied DNS, restricted Caddy paths, monitoring
+and site embeds. Follow [validation.md](validation.md) for the expected
+results and evidence still required. These instructions replace the original
+shared candidate deployment pattern.
 
 ## Related Documentation
 
 | Document | Purpose |
 |---|---|
-| [Phase 3 docs](../phase-3-reverse-proxy-https/) | The proxy pattern this phase builds on |
-| [Caddy Config](../../configs/caddy/) | Caddyfile, compose stack, staged routes |
-| [Lessons Learned](../../LESSONS-LEARNED.md) | DNS-zone truth, tunnel-claim pattern, runbook staleness |
-| [Roadmap](../../ROADMAP.md) | Phase 4 planned tasks; Phases 5-6 context |
-
----
-
-## Key Takeaway
-
-The proxy pattern is proven; the app choice decides what the VPS is *for*.
-Umami turns the VPS into the data plane for the public sites the lab is
-supposed to showcase, and gives the backup and monitoring phases their
-first real workload.
-
-> The first stateful service should be one you actually use. Everything
-> after it is repetition.
+| [Phase 3 validation](../phase-3-reverse-proxy-https/validation.md) | Completed proxy deployment and captured evidence |
+| [Caddy Config](../../configs/caddy/) | Proxy example, staged routes and current exposure inventory |
+| [Umami Config](../../configs/umami/) | Implemented service contract and backup tooling |
+| [Lessons Learned](../../LESSONS-LEARNED.md) | DNS authority, first-run administration and Cloudflare ingress |
+| [Roadmap](../../ROADMAP.md) | Follow-up phases and remaining work pointers |

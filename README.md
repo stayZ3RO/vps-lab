@@ -60,9 +60,9 @@ This VPS lab gives me a place to practice:
           v
     Netcup VPS - netcup-prod-01
           |
-          ├── UFW Firewall
-          │     ├── HTTP public
-          │     ├── HTTPS public
+          ├── Firewall controls (UFW and DOCKER-USER)
+          │     ├── HTTP/HTTPS from Cloudflare ranges only
+          │     ├── Docker-published proxy ports restricted in DOCKER-USER
           │     └── SSH over tailscale0 only
           |
           ├── Fail2Ban
@@ -71,10 +71,11 @@ This VPS lab gives me a place to practice:
           ├── Docker Engine
           │     ├── Caddy (reverse proxy, automatic HTTPS)
           │     ├── Uptime Kuma (status.chrisalorenzo.com, public status page only)
-          │     └── ntfy (ntfy.chrisalorenzo.com, backend internal only)
+          │     ├── ntfy (ntfy.chrisalorenzo.com, backend internal only)
+          │     └── Umami (a.chrisalorenzo.com, tracker paths only; PostgreSQL internal)
           |
           ├── Tailscale
-          │     └── Private SSH and tailnet-only Kuma admin via tailscale serve
+          │     └── Private SSH; loopback-backed Kuma and Umami admin via tailscale serve
           |
           └── /opt/stayz3ro
                 ├── apps
@@ -116,7 +117,7 @@ This VPS lab gives me a place to practice:
 | Phase 1 - VPS Baseline & Security Hardening | ✅ Complete | Secure Linux baseline |
 | Phase 2 - Domain DNS & Public Routing | ✅ Complete | stayz3ro.dev DNS records and Tailscale-only SSH |
 | Phase 3 - Reverse Proxy & HTTPS | ✅ Complete | Public routing and TLS |
-| Phase 4 - Docker App Deployment | 🚧 In Progress | First public containerized services (app chosen: Umami) |
+| Phase 4 - Docker App Deployment | ✅ Deployed; evidence follow-up | Umami tracker deployed 2026-10-14; see Current Status |
 | Phase 5 - Monitoring & Alerts | ✅ Public edge live | Seven Kuma monitors, Discord and self-hosted ntfy alerts since 2026-09-28 |
 | Phase 6 - Backups & Disaster Recovery | ⏳ Planned | Recovery strategy |
 | Phase 7 - Secondary VPS / Staging | ⏳ Planned | RackNerd staging and backup node |
@@ -263,7 +264,7 @@ There are no push monitors.
       Redacted validation screenshots and implementation evidence
 
     scripts/
-      Future maintenance and automation scripts
+      Local documentation validation; service backup tooling is under configs/umami/
 
 ---
 
@@ -323,11 +324,11 @@ Admin dashboards, databases, Portainer, and monitoring tools should not be direc
 
 ## Current Focus
 
-**Phase 4 - Docker App Deployment** is in progress.
-
-The planned Umami deployment would put web analytics behind Caddy at
-`analytics.stayz3ro.dev`. The compose stack and deployment runbook are staged;
-the live deployment is pending.
+Umami was deployed on 2026-10-14 at `a.chrisalorenzo.com`, with only tracker
+paths public and administration through Tailscale Serve. Public service
+records use the Cloudflare proxy because origin HTTP/HTTPS accepts only
+Cloudflare ranges. [Current Status](CURRENT-STATUS.md) is the canonical home
+for deployment details and outstanding evidence, monitoring and integration checks.
 
 ---
 

@@ -15,6 +15,12 @@ Netcup VPS provisioning and hardening: connected to `stayz3ro.dev`, public DNS r
 
 `configs/`, `diagrams/`, `docs/`, `screenshots/`, `scripts/`
 
+## Git and CI
+
+Forgejo is primary at https://git.chrisalorenzo.com/; GitHub is the push
+mirror, and CI runs only on GitHub mirror pushes. SSH uses
+`gitssh.chrisalorenzo.com` on port 2222.
+
 ## Rules
 
 - Do not commit unless explicitly instructed.

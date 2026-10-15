@@ -13,7 +13,7 @@ The project starts with a secure Linux baseline, then layers on DNS, HTTPS, cont
 | Phase 1 - VPS Baseline & Security Hardening | ✅ Complete | Secure the Netcup VPS before public hosting |
 | Phase 2 - Domain DNS & Public Routing | ✅ Complete | Connected stayz3ro.dev to the VPS |
 | Phase 3 - Reverse Proxy & HTTPS | ✅ Complete | Route services through HTTPS |
-| Phase 4 - Docker App Deployment | 🚧 In Progress | Deploy public containerized services (app chosen: Umami) |
+| Phase 4 - Docker App Deployment | ✅ Deployed; evidence follow-up | Umami deployed 2026-10-14; remaining checks in Current Status |
 | Phase 5 - Monitoring & Alerts | ✅ Public edge live | Seven Kuma monitors and Discord plus self-hosted ntfy alerts since 2026-09-28; offsite check planned |
 | Phase 6 - Backups & Disaster Recovery | ⏳ Planned | Build recovery and backup strategy |
 | Phase 7 - Secondary VPS / Staging | ⏳ Planned | Use RackNerd for staging, monitoring, and backups |
@@ -109,25 +109,19 @@ including the DNS zone mismatch that blocked the first deploy attempt.
 
 ## Phase 4 - Docker App Deployment
 
-Status: 🚧 In Progress
+Status: ✅ Umami deployed 2026-10-14; evidence follow-up remains
 
-Purpose:
+Umami 3.4.0 and PostgreSQL 16 run behind Caddy. The proxied public host
+`a.chrisalorenzo.com` exposes `/script.js` and `/api/send` only. Administration
+uses loopback port 3000 through Tailscale Serve on 8444. Origin HTTP/HTTPS
+accepts Cloudflare ranges only.
 
-Deploy the first public Dockerized service on the VPS.
-
-App selected (2026-08-30): **Umami**, privacy-first web analytics at
-`analytics.stayz3ro.dev` (Umami + PostgreSQL). Candidate comparison:
-`docs/phase-4-docker-app-deployment/overview.md`.
-
-Planned tasks:
-
-- Create Docker Compose service layout
-- Deploy first public app
-- Route app through reverse proxy
-- Validate external access
-- Document environment variables
-- Add .env.example files
-- Capture deployment screenshots
+Completed in the repository: compose stack, `.env.example`, deployment guide,
+validation checklist and daily database backup tooling. The deployment and
+certificate correction are recorded in [CHANGELOG.md](CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied).
+[Current Status](CURRENT-STATUS.md#next-workstream) owns remaining checks;
+monitoring, site embeds, timer installation and screenshots are not marked
+complete without their evidence.
 
 ---
 

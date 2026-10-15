@@ -1,12 +1,12 @@
 # Current Status
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Current Phase](https://img.shields.io/badge/current_phase-Phase%204%20In%20Progress-yellow)
+![Current Phase](https://img.shields.io/badge/current_phase-Phase%204%20Deployed-success)
 ![Security](https://img.shields.io/badge/ssh-Tailscale%20Only-success)
 
 ## Project State
 
-As of 2026-10-04, the Netcup VPS serves the public Uptime Kuma status page at
+As of 2026-10-14, the Netcup VPS serves the public Uptime Kuma status page at
 `status.chrisalorenzo.com` and self-hosted ntfy at `ntfy.chrisalorenzo.com`
 through Caddy HTTPS. The blog is at `blog.chrisalorenzo.com` on Cloudflare
 Pages. Kuma has tailnet-only admin via `tailscale serve` on port 8443,
@@ -16,16 +16,21 @@ The project has completed Phase 3 and is now in:
 
 **Phase 4 - Docker App Deployment**
 
-App selected: **Umami** (privacy-first web analytics). Scoping, candidate
-comparison, compose stack (`configs/umami/`), and the deployment runbook
-(`docs/phase-4-docker-app-deployment/step-by-step.md`) were staged for
-`analytics.stayz3ro.dev`. Re-scoped 2026-10-12 after the domain move: a
-neutral host on `chrisalorenzo.com` (proposed `a.chrisalorenzo.com`), public
-tracker, tailnet-only admin. See `docs/umami-rescope-DRAFT-2026-10-12.md`;
-the staged files change at its Stage 0. The live deployment is pending.
+Umami 3.4.0 and PostgreSQL 16 were deployed on 2026-10-14. The public
+tracker at `a.chrisalorenzo.com` serves only `/script.js` and `/api/send`;
+other public paths return 404. Administration uses a loopback listener on
+port 3000 through Tailscale Serve on port 8444. PostgreSQL has no published
+port. See [the deployment record](CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied)
+and [the current guide](docs/phase-4-docker-app-deployment/step-by-step.md).
+
+The public `status`, `ntfy` and `a` records are proxied through Cloudflare.
+Since 2026-10-05, origin ingress on HTTP/HTTPS accepts Cloudflare ranges only,
+including Docker-published proxy ports through `DOCKER-USER`. Direct origin
+access is blocked. The Umami deployment corrected the earlier DNS-only plan.
 
 Phase 5 public-edge monitoring is live as of 2026-09-28 (see Monitoring and
-Alerts below); Phase 4 remains in progress.
+Alerts below); Phase 4 evidence and remaining integration checks are not
+recorded as complete.
 
 ---
 
@@ -34,12 +39,13 @@ Alerts below); Phase 4 remains in progress.
     Internet
        |
        v
-    Cloudflare DNS
+    Cloudflare DNS and proxy (origin HTTP/HTTPS accepts Cloudflare ranges only)
        ├── blog.chrisalorenzo.com -> Cloudflare Pages
        ├── stayz3ro.dev and www -> 301 to blog.chrisalorenzo.com
-       └── status.chrisalorenzo.com and ntfy.chrisalorenzo.com -> Netcup VPS
-                                      ├── Caddy HTTPS -> public status page and ntfy
-                                      └── private SSH and Kuma admin over Tailscale
+       └── status.chrisalorenzo.com, ntfy.chrisalorenzo.com and a.chrisalorenzo.com
+           -> Netcup VPS
+               ├── Caddy HTTPS -> public status page, ntfy and Umami tracker paths
+               └── private SSH, Kuma and Umami admin over Tailscale
 
     Admin Workstation
        |
@@ -47,7 +53,7 @@ Alerts below); Phase 4 remains in progress.
     Tailscale
        |
        v
-    SSH to Netcup VPS and tailscale serve to Kuma admin
+    SSH to Netcup VPS and tailscale serve to Kuma and Umami admin
 
 ---
 
@@ -104,7 +110,7 @@ Alerts below); Phase 4 remains in progress.
 | Firewall | UFW |
 | Intrusion Protection | Fail2Ban |
 | Container Runtime | Docker 29.8.1 and Docker Compose |
-| Public Exposure | HTTPS via Caddy (`status.chrisalorenzo.com` -> public Kuma status page, `ntfy.chrisalorenzo.com` -> ntfy); blog and its legacy redirects run on Cloudflare |
+| Public Exposure | Cloudflare-proxied HTTPS via Caddy: public Kuma status page, ntfy and Umami tracker paths; origin HTTP/HTTPS accepts Cloudflare ranges only |
 
 ---
 
@@ -116,10 +122,12 @@ Current access and exposure model:
 
 - SSH is blocked on the public VPS IP
 - SSH is allowed through Tailscale only
-- HTTP is open, redirects to HTTPS via Caddy
-- HTTPS is open, serves the public status page at `status.chrisalorenzo.com` via Caddy
-- Direct application ports (`3000`, `3001`) are not exposed, confirmed by
-  external probe
+- Origin HTTP/HTTPS accepts Cloudflare ranges only; Caddy redirects HTTP to HTTPS
+- Proxied HTTPS serves the public status page, ntfy and Umami tracker paths
+- Direct application ports remain private. The earlier external probe
+  predates Umami; record a fresh backend-port check for the new stack
+- Umami administration binds loopback port 3000 and uses Tailscale Serve on
+  port 8444; public Umami paths other than `/script.js` and `/api/send` return 404
 - Databases are not exposed
 - Kuma has tailnet-only admin via `tailscale serve` on port 8443; its backend
   binds IPv4 loopback port 3001
@@ -128,7 +136,8 @@ Current access and exposure model:
 
 ### Domain move (2026-10-04)
 
-- `status.chrisalorenzo.com` uses a DNS-only A record. Its root returns 302
+- `status.chrisalorenzo.com` now uses a proxied A record (changed 2026-10-05).
+  Its root returns 302
   to `/status/main`; the public page has `Sites` and `Infra` groups.
 - `status.stayz3ro.dev` returns 301 to `status.chrisalorenzo.com`, preserving
   the path and query.
@@ -180,7 +189,8 @@ as complete here.
 ### ntfy (live 2026-09-28)
 
 - `binwiederhier/ntfy:v2.28.0`, pinned by digest, on the `web` network with no
-  published port. Caddy serves `ntfy.chrisalorenzo.com` (DNS only A record).
+  published port. Caddy serves `ntfy.chrisalorenzo.com` (proxied A record since
+  2026-10-05).
 - `deny-all` by default, no signup, no web app. Users: `admin`, `kuma`
   (write-only `edge-alerts`), `automation` and `alertmanager` (write-only
   `lab-alerts`, no tokens issued yet), `phone` (read-only on both).
@@ -198,17 +208,12 @@ VPS into the home LAN is opened.
 
 ## Next Workstream
 
-Next phase:
+**Phase 4 - Docker App Deployment** has a recorded deployment. Remaining
+items require evidence before being marked complete:
 
-**Phase 4 - Docker App Deployment** (in progress, app chosen, deployment pending)
-
-Planned tasks:
-
-- Deploy Umami (privacy-first web analytics) behind Caddy at `analytics.stayz3ro.dev`
-- Claim the Umami admin account over a private SSH tunnel before public exposure
-- Add the `analytics` DNS record in the Cloudflare zone (the live zone, see Lessons Learned)
-- Route it through the reverse proxy and validate external access
-- Document environment variables and `.env.example` (done, `configs/umami/`)
-- Add the new host as an Uptime Kuma monitor
-- Wire the blog embed (separate repo, coordinated change)
+- Record the Umami admin password change and private-access check
+- Record external tracker, fallback 404 and backend-port checks
+- Verify the new Kuma monitor targets `https://a.chrisalorenzo.com/script.js`
+- Verify blog and portfolio embeds and event collection in their own repos
+- Record installation and execution of the provided database backup timer
 - Capture deployment screenshots

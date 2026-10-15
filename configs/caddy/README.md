@@ -38,12 +38,20 @@ reason to pick a heavier proxy - Caddy emits structured JSON access logs here.
 | `https://status.chrisalorenzo.com/status/main` | Public Kuma status page; root returns 302 here and public admin paths return 404 |
 | `https://status.stayz3ro.dev` | Caddy 301 redirect to the new status host, preserving path and query |
 | `https://ntfy.chrisalorenzo.com` | Public HTTPS edge for self-hosted ntfy |
-| `analytics` / `apps` / `api` subdomains | Staged in `Caddyfile`, disabled pending their app deployments |
+| `https://a.chrisalorenzo.com` | Umami deployed 2026-10-14; public `/script.js` and `/api/send` only, other paths 404 |
+| `apps` / `api` subdomains | Staged in `Caddyfile`, disabled pending their app deployments |
 | Kuma admin | Tailnet-only through `tailscale serve` on port 8443 |
-| Backend application ports | Internal Docker network; Kuma also binds IPv4 loopback port 3001 |
+| Umami admin | Loopback port 3000 through Tailscale Serve on 8444 |
+| Backend application ports | Internal Docker networks; Kuma and Umami admin listeners bind IPv4 loopback |
 | Caddy admin API | Disabled (`admin off`) |
 
 ---
+
+Since 2026-10-05, the `status` and `ntfy` records use the Cloudflare proxy.
+The `a` record also requires proxying: origin HTTP/HTTPS accepts Cloudflare
+ranges only, including Docker-published ports through `DOCKER-USER`. The
+repository keeps the Umami Caddy block commented as a deployment template;
+[Current Status](../../CURRENT-STATUS.md) records the active deployment.
 
 ## Stage 0b: deployment gates (2026-10-04 cutover record)
 
