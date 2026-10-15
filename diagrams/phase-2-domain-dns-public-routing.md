@@ -51,7 +51,7 @@ This diagram represents the public DNS routing and private administrative access
          |
          | SSH
          v
-    netcup-prod-01
+    edge-vps
 
 Public SSH is blocked.
 

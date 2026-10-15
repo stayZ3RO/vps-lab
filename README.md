@@ -1,5 +1,8 @@
 # VPS Cloud Infrastructure Lab 🚀
 
+Machine names and SSH aliases in this repository are generic role examples.
+Use private inventory for real connection targets before following commands.
+
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![Current Phase](https://img.shields.io/badge/current_phase-Docker%20App%20Deployment-blue)
 ![Platform](https://img.shields.io/badge/platform-Netcup%20VPS-orange)
@@ -58,7 +61,7 @@ This VPS lab gives me a place to practice:
           |
           | SSH over Tailscale
           v
-    Netcup VPS - netcup-prod-01
+    Netcup VPS - edge-vps
           |
           ├── Firewall controls (UFW and DOCKER-USER)
           │     ├── HTTP/HTTPS from Cloudflare ranges only
@@ -133,7 +136,7 @@ Phase 1 prepared the Netcup VPS as a secure Linux baseline before deploying publ
 
 Highlights:
 
-- Configured hostname: `netcup-prod-01`
+- Configured hostname: `edge-vps`
 - Created a non-root sudo user
 - Hardened SSH access
 - Disabled root SSH login

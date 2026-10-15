@@ -7,7 +7,7 @@
 ## Phase Summary
 
 Phase 5 makes the public edge observable. Since 2026-09-28, Kuma on
-`netcup-prod-01` has watched public sites, HTTPS, and public DNS, with
+`edge-vps` has watched public sites, HTTPS, and public DNS, with
 certificate-expiry notices and alerts through Discord and self-hosted ntfy
 (`ntfy.chrisalorenzo.com`). The public page is now at
 `https://status.chrisalorenzo.com/status/main`; Kuma administration is

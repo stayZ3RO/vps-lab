@@ -24,7 +24,7 @@ exposing their ports.
     Public DNS Resolver  ->  stayz3ro.dev A record  ->  Netcup VPS public IP
          |
          v
-    Netcup VPS - netcup-prod-01
+    Netcup VPS - edge-vps
          |
          ├── UFW: only 80/tcp, 443/tcp public (SSH is Tailscale only)
          |
@@ -59,7 +59,7 @@ exposing their ports.
          |
          | SSH
          v
-    netcup-prod-01
+    edge-vps
 
 ---
 

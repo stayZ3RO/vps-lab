@@ -100,7 +100,7 @@ recorded as complete.
 | Item | Value |
 |---|---|
 | Provider | Netcup |
-| Hostname | netcup-prod-01 |
+| Hostname | edge-vps |
 | Role | Primary production/public services VPS |
 | Operating System | Ubuntu Linux |
 | Domains | chrisalorenzo.com public services; stayz3ro.dev legacy redirects |

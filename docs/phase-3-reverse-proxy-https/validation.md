@@ -9,7 +9,7 @@
 
 This page documents validation evidence for Phase 3: Reverse Proxy & HTTPS.
 
-The deploy ran on 2026-08-30 on `netcup-prod-01` (all 11 runbook steps), and
+The deploy ran on 2026-08-30 on `edge-vps` (all 11 runbook steps), and
 the evidence below was captured during that session and redacted afterward.
 It confirms that `https://status.stayz3ro.dev` is publicly reachable with a
 valid certificate, that HTTP redirects to HTTPS, that security headers and

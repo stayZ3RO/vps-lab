@@ -8,7 +8,7 @@ first certificate.
 
 ## 1. Purpose and scope
 
-Run one private ntfy server on `netcup-prod-01`, published at
+Run one private ntfy server on `edge-vps`, published at
 `https://ntfy.chrisalorenzo.com` through the existing Caddy container, and
 move Uptime Kuma's `public-edge-ntfy` provider from the interim `ntfy.sh`
 topic to it.
@@ -51,7 +51,7 @@ ntfy publishes no port), email or SMS notifications, and any home-lab change
 
 ## 3. Prerequisites you provide
 
-- SSH to `netcup-prod-01` over Tailscale as the existing admin user (in the
+- SSH to `edge-vps` over Tailscale as the existing admin user (in the
   `docker` group; no `sudo` is needed for any step).
 - Cloudflare dashboard access for `chrisalorenzo.com`.
 - A password manager entry for: the ntfy admin password, the `phone` user
@@ -64,7 +64,7 @@ ntfy publishes no port), email or SMS notifications, and any home-lab change
 
 ## 4. Preflight results (read-only, 2026-09-28)
 
-Run from a workstation with `ssh -o BatchMode=yes netcup-prod-01`. No change
+Run from a workstation with `ssh -o BatchMode=yes edge-vps`. No change
 was made. No config file was printed, only container labels, mount paths, site
 block names, and sizes.
 
@@ -92,7 +92,7 @@ Paste at the start of every workstation shell used below.
 
 ```sh
 NTFY_HOST=ntfy.chrisalorenzo.com
-VPS=netcup-prod-01
+VPS=edge-vps
 DEPLOY_DIR=/opt/stayz3ro/proxy/configs          # from the compose labels in section 4
 REPO="$HOME/github/vps-lab"                      # local clone of this repo at the merged commit
 test -f "$REPO/configs/ntfy/server.yml" || echo "set REPO to the local clone first"

@@ -90,7 +90,7 @@ Why this matters:
 
 Hostname used:
 
-    netcup-prod-01
+    edge-vps
 
 Validation commands:
 

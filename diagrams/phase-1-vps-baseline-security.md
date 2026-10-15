@@ -19,7 +19,7 @@ At this stage, the VPS is not yet hosting public applications. The focus is on s
           | SSH Key Authentication
           | Tailscale Private Access
           v
-    Netcup VPS - netcup-prod-01
+    Netcup VPS - edge-vps
           |
           ├── Access Layer
           │     ├── Non-root sudo user
