@@ -4,7 +4,7 @@ Machine names and SSH aliases in this repository are generic role examples.
 Use private inventory for real connection targets before following commands.
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
-![Current Phase](https://img.shields.io/badge/current_phase-Docker%20App%20Deployment-blue)
+![Current Phase](https://img.shields.io/badge/current_phase-Umami%20tracker%20live-blue)
 ![Platform](https://img.shields.io/badge/platform-Netcup%20VPS-orange)
 ![Docker](https://img.shields.io/badge/container_runtime-Docker-blue)
 ![Security](https://img.shields.io/badge/security-hardened-success)
