@@ -84,8 +84,8 @@ From a separate machine off the tailnet, with working public DNS and no HTTP
 proxy, first confirm the public HTTPS host responds, then check port 3001:
 
 ```bash
-curl --noproxy '*' -sS -m 10 -o /dev/null -w 'https %{http_code}\n' https://status.stayz3ro.dev/
-curl --noproxy '*' -sS -m 5 -o /dev/null -w 'http=%{http_code} connects=%{num_connects}\n' http://status.stayz3ro.dev:3001/
+curl --noproxy '*' -sS -m 10 -o /dev/null -w 'https %{http_code}\n' https://status.chrisalorenzo.com/
+curl --noproxy '*' -sS -m 5 -o /dev/null -w 'http=%{http_code} connects=%{num_connects}\n' http://status.chrisalorenzo.com:3001/
 ```
 
 Require a normal HTTPS response and `http=000 connects=0` on port 3001,
