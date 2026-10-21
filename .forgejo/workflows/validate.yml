@@ -8,6 +8,12 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # CI-only placeholders. The umami example intentionally leaves these
+      # blank, and config only needs non-empty values to interpolate. These
+      # are not credentials and are never used to start a service.
+      POSTGRES_PASSWORD: ci-placeholder-not-a-secret
+      APP_SECRET: ci-placeholder-not-a-secret
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,10 +120,9 @@ jobs:
       - name: Validate Docker Compose files
         run: |
           set -euo pipefail
-          # CI-only placeholders: the checked-in umami example leaves secrets
-          # blank, and config only needs non-empty values to interpolate.
-          export POSTGRES_PASSWORD=ci
-          export APP_SECRET=ci
+          # The job env supplies the CI-only placeholders. The checked-in
+          # umami example leaves these blank, and config only needs non-empty
+          # values to interpolate.
           for file in configs/*/docker-compose.yml; do
             dir="${file%/*}"
             if [ -f "$dir/.env.example" ]; then
