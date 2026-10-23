@@ -192,13 +192,15 @@ as complete here.
   published port. Caddy serves `ntfy.chrisalorenzo.com` (proxied A record since
   2026-10-05).
 - `deny-all` by default, no signup, no web app. Users: `admin`, `kuma`
-  (write-only `edge-alerts`), `automation` and `alertmanager` (write-only
-  `lab-alerts`, no tokens issued yet), `phone` (read-only on both).
+  (write-only `TOPIC_EDGE`), `automation` and `alertmanager` (write-only
+  `TOPIC_LAB`, no tokens issued yet), `phone` (read-only on both).
+- Topic names in this section are placeholders (`TOPIC_EDGE`, `TOPIC_LAB`).
+  The earlier names remain in git history.
 - iOS relay enabled (`upstream-base-url`); ntfy.sh sees only message IDs.
 - Kuma reaches ntfy at `http://ntfy` inside the `web` network and signs in as
   `kuma` with username and password.
 - Stage 5 results: root 404, metrics 404, anonymous publish and read 403,
-  `kuma` publish 200, `kuma` on `lab-alerts` 403, `kuma` read 403.
+  `kuma` publish 200, `kuma` on `TOPIC_LAB` 403, `kuma` read 403.
 - Remove the Caddyfile and `server.yml` backups on the VPS after 2026-10-05.
 
 No private or admin endpoint is monitored from the VPS, and no path from the
