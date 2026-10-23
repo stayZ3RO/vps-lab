@@ -144,6 +144,10 @@ These prompt for passwords, so run them in an interactive session. Passwords
 are typed at the prompts. Each token is printed once: copy it straight into
 the password manager, and do not paste it into any file.
 
+Topic names in this file are placeholders: `TOPIC_EDGE` is the Kuma
+topic and `TOPIC_LAB` is the lab topic. The earlier names remain in git
+history. Use new names if you run this again.
+
 ```sh
 ssh -tt "$VPS"
 ```
@@ -157,11 +161,11 @@ docker exec -it ntfy ntfy user add automation
 docker exec -it ntfy ntfy user add alertmanager
 docker exec -it ntfy ntfy user add phone                  # the phone signs in with this user and password
 
-docker exec ntfy ntfy access kuma edge-alerts write-only
-docker exec ntfy ntfy access automation lab-alerts write-only
-docker exec ntfy ntfy access alertmanager lab-alerts write-only
-docker exec ntfy ntfy access phone edge-alerts read-only
-docker exec ntfy ntfy access phone lab-alerts read-only
+docker exec ntfy ntfy access kuma TOPIC_EDGE write-only
+docker exec ntfy ntfy access automation TOPIC_LAB write-only
+docker exec ntfy ntfy access alertmanager TOPIC_LAB write-only
+docker exec ntfy ntfy access phone TOPIC_EDGE read-only
+docker exec ntfy ntfy access phone TOPIC_LAB read-only
 
 docker exec ntfy ntfy token add --label=kuma kuma                   # copy the tk_ value to the password manager
 docker exec ntfy ntfy token add --label=automation automation
@@ -175,7 +179,7 @@ ntfy tokens carry the full rights of their user, which is why every sender
 gets its own user with rights on one topic only.
 
 Gate: `ntfy access` lists `admin` (all topics), `kuma` write-only on
-`edge-alerts`, `automation` and `alertmanager` write-only on `lab-alerts`,
+`TOPIC_EDGE`, `automation` and `alertmanager` write-only on `TOPIC_LAB`,
 `phone` read-only on both, and anonymous with no access.
 
 Rollback (on the VPS). Remove a user together with its tokens and rules:
@@ -259,12 +263,12 @@ From the workstation. The token is read at a hidden prompt and cleared after.
 ```sh
 curl -sS -o /dev/null -w 'root %{http_code}\n'          "https://$NTFY_HOST/"                       # 404: no web app
 curl -sS -o /dev/null -w 'metrics %{http_code}\n'       "https://$NTFY_HOST/metrics"                # 404
-curl -sS -o /dev/null -w 'anon publish %{http_code}\n'  -d test "https://$NTFY_HOST/edge-alerts"     # 403
-curl -sS -o /dev/null -w 'anon read %{http_code}\n'     "https://$NTFY_HOST/edge-alerts/json?poll=1" # 403
+curl -sS -o /dev/null -w 'anon publish %{http_code}\n'  -d test "https://$NTFY_HOST/TOPIC_EDGE"     # 403
+curl -sS -o /dev/null -w 'anon read %{http_code}\n'     "https://$NTFY_HOST/TOPIC_EDGE/json?poll=1" # 403
 read -rsp 'kuma token: ' NTFY_TOKEN; echo
-curl -sS -o /dev/null -w 'kuma publish %{http_code}\n'  -H "Authorization: Bearer $NTFY_TOKEN" -d 'ntfy packet test' "https://$NTFY_HOST/edge-alerts"   # 200
-curl -sS -o /dev/null -w 'kuma wrong topic %{http_code}\n' -H "Authorization: Bearer $NTFY_TOKEN" -d x "https://$NTFY_HOST/lab-alerts"             # 403
-curl -sS -o /dev/null -w 'kuma read %{http_code}\n'     -H "Authorization: Bearer $NTFY_TOKEN" "https://$NTFY_HOST/edge-alerts/json?poll=1"         # 403
+curl -sS -o /dev/null -w 'kuma publish %{http_code}\n'  -H "Authorization: Bearer $NTFY_TOKEN" -d 'ntfy packet test' "https://$NTFY_HOST/TOPIC_EDGE"   # 200
+curl -sS -o /dev/null -w 'kuma wrong topic %{http_code}\n' -H "Authorization: Bearer $NTFY_TOKEN" -d x "https://$NTFY_HOST/TOPIC_LAB"             # 403
+curl -sS -o /dev/null -w 'kuma read %{http_code}\n'     -H "Authorization: Bearer $NTFY_TOKEN" "https://$NTFY_HOST/TOPIC_EDGE/json?poll=1"         # 403
 unset NTFY_TOKEN
 ```
 
@@ -275,7 +279,7 @@ of the same commands against the v2.28.0 binary on 2026-09-28.
 
 In the ntfy app: Settings > Manage users > add server
 `https://ntfy.chrisalorenzo.com`, user `phone`, and the `phone` password.
-Then subscribe to `edge-alerts` and `lab-alerts` on that server (Use another
+Then subscribe to `TOPIC_EDGE` and `TOPIC_LAB` on that server (Use another
 server: `https://ntfy.chrisalorenzo.com`).
 
 - Android: instant delivery works directly (the app keeps a connection open).
@@ -306,7 +310,7 @@ Notification:
 1. Notification Type: ntfy. Friendly Name: `public-edge-ntfy`.
 2. Server URL: `http://ntfy` (plain HTTP to the container on the `web`
    network; `https://ntfy` fails with ECONNREFUSED on 443).
-3. Topic: `edge-alerts`. Priority: 5.
+3. Topic: `TOPIC_EDGE`. Priority: 5.
 4. Authentication: Access Token with the `kuma` token, or Username and
    Password with the `kuma` user. Both carry the same rights. The live setup
    uses username and password.
@@ -338,10 +342,10 @@ second path for edge alerts.
   ntfy base URL at
   `https://ntfy.chrisalorenzo.com`, set its token to the `automation` token
   (from the password manager, in that deployment's secret store), publish to
-  `lab-alerts`, and remove the bundled ntfy service. Phones then use one
+  `TOPIC_LAB`, and remove the bundled ntfy service. Phones then use one
   server for everything.
 - Alertmanager: add a webhook receiver with URL
-  `https://ntfy.chrisalorenzo.com/lab-alerts?template=alertmanager` (ntfy's
+  `https://ntfy.chrisalorenzo.com/TOPIC_LAB?template=alertmanager` (ntfy's
   built-in Alertmanager template, confirmed on v2.28.0) and
   `http_config.authorization` of type `Bearer`, with `credentials_file`
   pointing at a root-only file that holds the `alertmanager` token.
