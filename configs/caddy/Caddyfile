@@ -124,3 +124,24 @@ ntfy.chrisalorenzo.com {
 		flush_interval -1
 	}
 }
+
+# ---------------------------------------------------------------------------
+# Admin names. A request is proxied only when its source is in 100.64.0.0/10.
+# Every other source gets 403. The public status and tracker sites stay as
+# they are. The backends are the existing containers on the web network:
+# uptime-kuma port 3001, umami port 3000. Steps are in configs/caddy/README.md
+# under "Admin names".
+# ---------------------------------------------------------------------------
+kuma.chrisalorenzo.com {
+	import security_headers
+	@not_tailnet not remote_ip 100.64.0.0/10
+	respond @not_tailnet 403
+	reverse_proxy uptime-kuma:3001
+}
+
+umami.chrisalorenzo.com {
+	import security_headers
+	@not_tailnet not remote_ip 100.64.0.0/10
+	respond @not_tailnet 403
+	reverse_proxy umami:3000
+}

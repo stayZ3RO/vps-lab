@@ -42,6 +42,8 @@ reason to pick a heavier proxy - Caddy emits structured JSON access logs here.
 | `apps` / `api` subdomains | Staged in `Caddyfile`, disabled pending their app deployments |
 | Kuma admin | Tailnet-only through `tailscale serve` on port 8443 |
 | Umami admin | Loopback port 3000 through Tailscale Serve on 8444 |
+| `https://kuma.chrisalorenzo.com` | Caddy admin site. Source in `100.64.0.0/10` is proxied to the existing Kuma container. Any other source gets 403 |
+| `https://umami.chrisalorenzo.com` | Caddy admin site. Same source rule, proxied to the existing Umami container |
 | Backend application ports | Internal Docker networks; Kuma and Umami admin listeners bind IPv4 loopback |
 | Caddy admin API | Disabled (`admin off`) |
 
@@ -125,6 +127,60 @@ public routes on this VPS:
 
 If validation fails, stop and correct the Caddyfile; do not restart.
 
+## Admin names
+
+`kuma.chrisalorenzo.com` and `umami.chrisalorenzo.com` are the admin sites in
+the Caddyfile. Each one proxies the existing container port only for a source
+in `100.64.0.0/10`. Every other source gets 403. No host address is written
+in the Caddyfile. The public status page and the public tracker paths are
+separate sites and are not part of this change.
+
+The Caddy admin API is off, so `caddy reload` cannot be used. Validate, then
+restart the container. The restart is the reload, and it briefly interrupts
+the public routes on this VPS.
+
+1. Confirm both DNS names exist and are not proxied through the CDN. A proxied
+   record presents the CDN address as the client, and both sites then return
+   403 to everyone.
+2. On the VPS, from this directory, save the current file and validate:
+
+```bash
+cd /opt/stayz3ro/proxy/configs/caddy || exit 1
+STAMP=$(date +%Y%m%d-%H%M%S)
+cp -p Caddyfile "Caddyfile.bak-$STAMP"
+docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+```
+
+3. Restart only after validate exits 0:
+
+```bash
+docker restart caddy
+```
+
+4. Pass, from a machine that is not on the tailnet:
+
+```bash
+curl -sS -o /dev/null -w 'kuma %{http_code}\n' --max-time 15 https://kuma.chrisalorenzo.com/
+curl -sS -o /dev/null -w 'umami %{http_code}\n' --max-time 15 https://umami.chrisalorenzo.com/
+```
+
+Both lines print `403`. From a machine on the tailnet, both URLs show the
+admin UI rather than 403. The public status page and `https://ntfy.chrisalorenzo.com/v1/health`
+still answer. The matcher is IPv4 only. An IPv6 client is not in
+`100.64.0.0/10` and gets 403.
+
+5. Rollback. Restore the backup, validate, and restart:
+
+```bash
+cp -p "Caddyfile.bak-$STAMP" Caddyfile
+docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile &&
+  docker restart caddy
+```
+
+Remove the two DNS names if this VPS should no longer answer them. Leave the
+Kuma and Umami containers running. This change does not remove the existing
+Tailscale Serve admin paths.
+
 ## Certificate persistence
 
 Issued certificates and the ACME account live in the `caddy_data` named
@@ -137,5 +193,6 @@ registered domain) make repeated re-issuance costly.
 
 - `.env` is gitignored. Never commit it.
 - `logs/` is gitignored.
-- No public IPs, keys, or account data belong in this folder.
+- No host addresses, keys, or account data belong in this folder. The admin
+  sites name the range `100.64.0.0/10` and no single host.
 - HSTS is set to 1 year in the `Caddyfile`. Lower it while testing if unsure.
