@@ -9,7 +9,7 @@ Read these first:
 
 ## Scope
 
-Netcup VPS provisioning and hardening: connected to `stayz3ro.dev`, public DNS routing validated, Docker-based services, Tailscale-only private access, SSH hardened. Active/in-progress repo (unlike the two home-network-* repos, which are closed out).
+Netcup VPS provisioning and hardening: public services under `chrisalorenzo.com` since the 2026-10-04 domain move (`stayz3ro.dev` now only redirects), public DNS routing validated, Docker-based services, Tailscale-only private access, SSH hardened. Active/in-progress repo (unlike the two home-network-* repos, which are closed out).
 
 ## Directories
 
@@ -17,9 +17,10 @@ Netcup VPS provisioning and hardening: connected to `stayz3ro.dev`, public DNS r
 
 ## Git and CI
 
-Forgejo is primary at https://git.chrisalorenzo.com/; GitHub is the push
-mirror, and CI runs only on GitHub mirror pushes. SSH uses
-`gitssh.chrisalorenzo.com` on port 2222.
+The repository is public (Forgejo primary, public GitHub mirror).
+
+Forgejo is primary; GitHub is the push mirror. CI runs on Forgejo on push
+(`.forgejo/workflows/validate.yml`).
 
 ## Rules
 
