@@ -4,7 +4,7 @@
 
 | File | Purpose | Where it runs |
 |---|---|---|
-| [check-relative-links.py](check-relative-links.py) | Check tracked Markdown links; `--self-test` checks the parser | Workstation and GitHub mirror docs CI |
+| [check-relative-links.py](check-relative-links.py) | Check tracked Markdown links; `--self-test` checks the parser | Workstation and the Forgejo `validate` workflow |
 | [backup-umami.sh](../configs/umami/backup-umami.sh) | Write and verify a PostgreSQL custom-format dump and SHA-256 sidecar; keep 14 days locally | VPS after explicit installation |
 | [umami-backup.service](../configs/umami/umami-backup.service) | Run the backup script | Host systemd service |
 | [umami-backup.timer](../configs/umami/umami-backup.timer) | Schedule the service daily at 03:30 UTC | Host systemd timer |
