@@ -16,7 +16,7 @@ published port.
 The public DNS record is proxied through Cloudflare because origin
 HTTP/HTTPS accepts Cloudflare ranges only. The deployment record also notes
 the certificate issued after correcting the earlier DNS-only plan.
-[Current Status](../../CURRENT-STATUS.md) is canonical for present state and
+[Current Status](../../phase-state.md) is canonical for present state and
 outstanding work; [CHANGELOG.md](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied)
 records the deployment.
 

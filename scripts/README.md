@@ -11,7 +11,7 @@
 
 The [Umami deployment guide](../docs/phase-4-docker-app-deployment/step-by-step.md)
 contains installation and verification steps. The tooling is committed;
-[Current Status](../CURRENT-STATUS.md#next-workstream) tracks execution evidence
+[Current Status](../phase-state.md#next-workstream) tracks execution evidence
 still needed. Do not run host backup or deployment commands as local docs checks.
 
 ## Local Documentation Checks

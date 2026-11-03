@@ -5,7 +5,7 @@
 # Umami analytics re-scope (DRAFT)
 
 Date: 2026-10-12
-Status: draft for review. Hostname decided 2026-10-12: a neutral single-letter host (proposed `a.chrisalorenzo.com`) instead of `analytics.`, to reduce silent loss from ad-block filter lists; examples below still show `analytics.` and change at Stage 0. Nothing is deployed, no files outside this draft were changed, no commits. Based on read-only inspection of `~/github/vps-lab`, the private ops notes, `~/github/blog`, `~/github/portfolio`, the Umami 3.4.0 docs and release notes, and one read-only capacity check on edge-vps (`free -h`, `df -h /`, `docker ps`).
+Status: draft for review. Hostname decided 2026-10-12: a neutral single-letter host (proposed `a.chrisalorenzo.com`) instead of `analytics.`, to reduce silent loss from ad-block filter lists; examples below still show `analytics.` and change at Stage 0. Nothing is deployed, no files outside this draft were changed, no commits. Based on read-only inspection of `~/github/vps-lab`, the private operational notes, `~/github/blog`, `~/github/portfolio`, the Umami 3.4.0 docs and release notes, and one read-only capacity check on edge-vps (`free -h`, `df -h /`, `docker ps`).
 
 ## 1. Why this draft exists
 
@@ -463,7 +463,7 @@ The one irreversible step in the whole plan is `docker compose down -v`, which d
 
 | File | What is stale |
 |---|---|
-| `CURRENT-STATUS.md` | Phase 4 paragraph and the Next Workstream list both name `analytics.stayz3ro.dev`; the architecture diagram omits the analytics host |
+| `phase-state.md` | Phase 4 paragraph and the Next Workstream list both name `analytics.stayz3ro.dev`; the architecture diagram omits the analytics host |
 | `ROADMAP.md` | Phase 4 says Umami at `analytics.stayz3ro.dev` |
 | `configs/umami/README.md` | Embed snippet, the `analytics.{$SITE_DOMAIN}` Caddy route, and the "claim admin before public exposure" model, which this draft replaces with a tracker-only public surface |
 | `configs/umami/docker-compose.yml` | Rolling image tag, no pin, no limits (section 6) |
@@ -497,7 +497,7 @@ Explicit uncertainty, so nothing here is read as measured fact:
 
 ## Sources
 
-- Read-only repo inspection: `vps-lab` (`CURRENT-STATUS.md`, `ROADMAP.md`, `configs/umami/*`, `configs/caddy/Caddyfile`, `docs/phase-4-docker-app-deployment/step-by-step.md`), the private ops notes, `blog` (`astro.config.mjs`, `src/layouts/Base.astro`, `public/_headers`, `README.md`, content mentions), `portfolio` (`index.html`, `public/_headers`).
+- Read-only repo inspection: `vps-lab` (`phase-state.md`, `ROADMAP.md`, `configs/umami/*`, `configs/caddy/Caddyfile`, `docs/phase-4-docker-app-deployment/step-by-step.md`), the private operational notes, `blog` (`astro.config.mjs`, `src/layouts/Base.astro`, `public/_headers`, `README.md`, content mentions), `portfolio` (`index.html`, `public/_headers`).
 - edge-vps capacity, one read-only command on 2026-10-12: `free -h; df -h /; docker ps --format "{{.Names}} {{.Image}}"`.
 - Umami: GitHub releases API (latest release v3.4.0, published 2026-09-17), `umami.is/docs/install` (PostgreSQL minimum 12.14, UTC recommendation), `umami.is/docs/faq` (no cookies, no PII, retention, supported databases), `umami.is/docs/tracker-configuration` (data-domains, data-do-not-track since v2.17.0, data-host-url), `umami.is/docs/collect-data` (tracker in the head), Docker Hub tags API for `umamisoftware/umami`.
 

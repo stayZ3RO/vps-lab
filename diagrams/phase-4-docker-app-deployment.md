@@ -118,4 +118,4 @@ Site embed example (integration evidence not recorded here, Cloudflare Pages)
 Umami is a deployed stateful workload. Backup tooling is committed; timer,
 restore, site-integration and tracker-monitor evidence remains to record.
 The separate public-edge monitoring work in Phase 5 is already live.
-[Current Status](../CURRENT-STATUS.md#next-workstream) owns outstanding checks.
+[Current Status](../phase-state.md#next-workstream) owns outstanding checks.

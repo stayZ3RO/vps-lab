@@ -70,7 +70,7 @@ Completed:
 - Captured redacted DNS and security screenshots
 
 Phase 2 subdomain plan (historical snapshot; current hosts are in
-[Current Status](CURRENT-STATUS.md)):
+[Current Status](phase-state.md)):
 
 | Subdomain | Intended Purpose |
 |---|---|
@@ -119,7 +119,7 @@ accepts Cloudflare ranges only.
 Completed in the repository: compose stack, `.env.example`, deployment guide,
 validation checklist and daily database backup tooling. The deployment and
 certificate correction are recorded in [CHANGELOG.md](CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied).
-[Current Status](CURRENT-STATUS.md#next-workstream) owns remaining checks;
+[Current Status](phase-state.md#next-workstream) owns remaining checks;
 monitoring, site embeds, timer installation and screenshots are not marked
 complete without their evidence.
 

@@ -2,7 +2,7 @@
 
 Date prepared: 2026-09-28 (America/New_York). Executed 2026-09-28.
 Preflight statements below describe the state before execution; the final
-result is recorded in Stage 6 and `CURRENT-STATUS.md`.
+result is recorded in Stage 6 and `phase-state.md`.
 Estimated hands-on time: 60 to 90 minutes, including the DOWN/UP test.
 Scope: public-edge availability and certificate alerts only.
 
@@ -368,7 +368,7 @@ Live state on 2026-09-28, recorded without secrets:
   on 2026-09-28.
 
 Record only non-secret values. Never record the ntfy topic or token, the
-Discord webhook, or any account identifier. Update `CURRENT-STATUS.md` and the
+Discord webhook, or any account identifier. Update `phase-state.md` and the
 Phase 5 summary with the same non-secret set.
 
 - Gate: another admin can reproduce the wiring from the record alone, and a

@@ -2,7 +2,7 @@
 
 Read these first:
 
-1. `CURRENT-STATUS.md`: canonical current state
+1. `phase-state.md`: canonical current state
 2. `ROADMAP.md`
 3. `LESSONS-LEARNED.md`
 4. `CHANGELOG.md`

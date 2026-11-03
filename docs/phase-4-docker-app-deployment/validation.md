@@ -63,5 +63,5 @@ out of screenshots unless the example deliberately needs a public identifier.
 
 Deployment and the DNS/certificate correction are recorded. Monitoring,
 site integration, detailed response captures, backup execution and screenshots
-remain unverified in this repository. [Current Status](../../CURRENT-STATUS.md#next-workstream)
+remain unverified in this repository. [Current Status](../../phase-state.md#next-workstream)
 is the canonical list of remaining work.

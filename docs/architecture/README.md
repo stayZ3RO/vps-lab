@@ -1,7 +1,7 @@
 # Architecture Notes
 
 The [architecture overview](../../diagrams/architecture.md) is the canonical
-current diagram. [Current Status](../../CURRENT-STATUS.md) records the live
+current diagram. [Current Status](../../phase-state.md) records the live
 service contract and remaining work; [ROADMAP.md](../../ROADMAP.md) records
 planned backup and secondary-node work.
 

@@ -50,5 +50,5 @@ Since 2026-10-05, service records are proxied and origin HTTP/HTTPS accepts
 Cloudflare ranges only, including Docker-published Caddy ports through
 `DOCKER-USER`. The Umami deployment and proxied-record correction were
 recorded on 2026-10-14 in [CHANGELOG.md](../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied).
-[Current Status](../CURRENT-STATUS.md) owns remaining evidence and integration
+[Current Status](../phase-state.md) owns remaining evidence and integration
 checks; [ROADMAP.md](../ROADMAP.md) owns planned backup and secondary VPS work.

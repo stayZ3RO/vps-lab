@@ -2,7 +2,7 @@
 
 Date prepared: 2026-09-28 (America/New_York). Executed 2026-09-28.
 Preflight results below are a historical snapshot from before ntfy went live;
-the current outcome is recorded in `CURRENT-STATUS.md`.
+the current outcome is recorded in `phase-state.md`.
 Estimated hands-on time: 60 to 75 minutes, plus a few minutes for DNS and the
 first certificate.
 
@@ -354,7 +354,7 @@ second path for edge alerts.
 
 ## 10. Record after running
 
-Add to `CURRENT-STATUS.md` in a separate change: the date, the ntfy version and
+Add to `phase-state.md` in a separate change: the date, the ntfy version and
 digest, the DNS record (name only), the users created (names only, no tokens),
 the Kuma provider switch time, and the Stage 5 results. Remove the Caddyfile
 backup after a week of normal operation.
