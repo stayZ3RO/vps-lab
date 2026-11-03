@@ -15,7 +15,7 @@ tailnet-only through `tailscale serve` on port 8443. Public admin paths return
 404.
 
 The five display-name changes and retained `id` tags are recorded in
-[Current Status](../../CURRENT-STATUS.md#monitoring-and-alerts). Verification
+[Current Status](../../phase-state.md#monitoring-and-alerts). Verification
 of the Blog, status-page and HTTPS Edge targets against the new hosts, plus a
 `blog-redirect` monitor for the old blog host's 301, remain pending. Do not
 count that redirect monitor as live yet.
@@ -84,4 +84,4 @@ initial 2026-09-28 alert-wiring work.
 | Offsite dead-man monitor designed | ⏳ Separate packet |
 
 The live wiring was done on 2026-09-28 and is recorded in the packet and
-`CURRENT-STATUS.md`.
+`phase-state.md`.

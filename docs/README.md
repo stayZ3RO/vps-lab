@@ -35,7 +35,7 @@ The current phase is:
 **Phase 4 - Docker App Deployment**
 
 Umami was deployed on 2026-10-14 with public tracker paths and private
-administration. [Current Status](../CURRENT-STATUS.md) records the current
+administration. [Current Status](../phase-state.md) records the current
 contract and outstanding checks; [Phase 4](phase-4-docker-app-deployment/)
 contains the deployment guide and validation expectations.
 
@@ -60,7 +60,7 @@ Each completed phase should include:
 
 | File | Purpose |
 |---|---|
-| [Current Status](../CURRENT-STATUS.md) | Current state of the project |
+| [Current Status](../phase-state.md) | Current state of the project |
 | [Roadmap](../ROADMAP.md) | Planned buildout |
 | [Lessons Learned](../LESSONS-LEARNED.md) | Operational notes and takeaways |
 | [Changelog](../CHANGELOG.md) | Major documentation and infrastructure updates |

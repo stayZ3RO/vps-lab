@@ -7,7 +7,7 @@
 | Phase 4 Home | [README](README.md) |
 | Step-by-Step Guide | [step-by-step.md](step-by-step.md) |
 | Validation Evidence | [validation.md](validation.md) |
-| Current Status | [CURRENT-STATUS.md](../../CURRENT-STATUS.md) |
+| Current Status | [phase-state.md](../../phase-state.md) |
 
 ## Implemented Design
 

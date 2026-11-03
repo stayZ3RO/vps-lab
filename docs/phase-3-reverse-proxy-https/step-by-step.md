@@ -11,7 +11,7 @@ and issuing HTTPS certificates for `stayz3ro.dev`.
 
 All eleven steps were executed on 2026-08-30. See [validation.md](validation.md)
 for the execution record. The commands below preserve the original deployment
-procedure; [Current Status](../../CURRENT-STATUS.md) records later domain,
+procedure; [Current Status](../../phase-state.md) records later domain,
 proxy and ingress changes.
 
 ---

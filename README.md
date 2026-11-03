@@ -14,7 +14,7 @@ Use private inventory for real connection targets before following commands.
 
 | Area | Link |
 |---|---|
-| Current Status | [CURRENT-STATUS.md](CURRENT-STATUS.md) |
+| Current Status | [phase-state.md](phase-state.md) |
 | Roadmap | [ROADMAP.md](ROADMAP.md) |
 | Lessons Learned | [LESSONS-LEARNED.md](LESSONS-LEARNED.md) |
 | Changelog | [CHANGELOG.md](CHANGELOG.md) |
@@ -203,7 +203,7 @@ records.
 
 The renamed monitor displays are `Blog`, `Portfolio`, `HTTPS Edge`,
 `DNS (stayz3ro.dev)` and `DNS (chrisalorenzo.com)`. Their old names remain as
-`id` tags; [Current Status](CURRENT-STATUS.md#monitoring-and-alerts) records the
+`id` tags; [Current Status](phase-state.md#monitoring-and-alerts) records the
 mapping and remaining target checks. TLS expiry warnings are set to 14 days.
 There are no push monitors.
 
@@ -245,7 +245,7 @@ There are no push monitors.
 
 | Document | Description |
 |---|---|
-| [Current Status](CURRENT-STATUS.md) | Current project state |
+| [Current Status](phase-state.md) | Current project state |
 | [Roadmap](ROADMAP.md) | Planned phases |
 | [Lessons Learned](LESSONS-LEARNED.md) | Troubleshooting notes and design decisions |
 | [Changelog](CHANGELOG.md) | Project update history |
@@ -347,7 +347,7 @@ Admin dashboards, databases, Portainer, and monitoring tools should not be direc
 Umami was deployed on 2026-10-14 at `a.chrisalorenzo.com`, with only tracker
 paths public and administration through Tailscale Serve. Public service
 records use the Cloudflare proxy because origin HTTP/HTTPS accepts only
-Cloudflare ranges. [Current Status](CURRENT-STATUS.md) is the canonical home
+Cloudflare ranges. [Current Status](phase-state.md) is the canonical home
 for deployment details and outstanding evidence, monitoring and integration checks.
 
 ---

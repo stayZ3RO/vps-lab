@@ -53,7 +53,7 @@ Since 2026-10-05, the `status` and `ntfy` records use the Cloudflare proxy.
 The `a` record also requires proxying: origin HTTP/HTTPS accepts Cloudflare
 ranges only, including Docker-published ports through `DOCKER-USER`. The
 repository keeps the Umami Caddy block commented as a deployment template;
-[Current Status](../../CURRENT-STATUS.md) records the active deployment.
+[Current Status](../../phase-state.md) records the active deployment.
 
 ## Stage 0b: deployment gates (2026-10-04 cutover record)
 
