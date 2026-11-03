@@ -473,7 +473,7 @@ The one irreversible step in the whole plan is `docker compose down -v`, which d
 
 Consumer repos (in scope for the change, still listed only): `blog/src/layouts/Base.astro`, `blog/public/_headers`, `blog/README.md`, `blog/src/content/blog/stayz3ro-dev-cloudflare.md`, `portfolio/index.html`, `portfolio/public/_headers`. Nothing in `blog/dist/**` or `portfolio/dist/**` is edited by hand; both are build output.
 
-The domain-consolidation packet in the private ops repo records the naming decision. The current implementation guide linked above records the deployed public configuration.
+The private domain-consolidation record explains the naming decision. The current implementation guide linked above records the deployed public configuration.
 
 ## 13. Open decisions and uncertainty
 
