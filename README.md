@@ -266,6 +266,9 @@ There are no push monitors.
     screenshots/
       Redacted validation screenshots and implementation evidence
 
+    screenshots-redacted/
+      Redacted Phase 1 and Phase 2 evidence
+
     scripts/
       Local documentation validation; service backup tooling is under configs/umami/
 
