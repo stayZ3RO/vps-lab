@@ -15,6 +15,7 @@ These files are documentation artifacts, not live production secrets.
 | Fail2Ban | [jail.local.example](fail2ban/jail.local.example) | SSH brute-force protection example |
 | Reverse Proxy | [Caddy Config](caddy/) | Caddyfile + compose stack, automatic HTTPS (Phase 3) |
 | Analytics | [Umami Config](umami/) | Umami + PostgreSQL compose stack, env template (Phase 4) |
+| Notifications | [ntfy Config](ntfy/) | ntfy compose stack and server config |
 | Docker | [Docker Config Notes](docker/) | Future Docker Compose examples |
 
 ---
