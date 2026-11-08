@@ -13,7 +13,7 @@ Netcup VPS provisioning and hardening: public services under `chrisalorenzo.com`
 
 ## Directories
 
-`configs/`, `diagrams/`, `docs/`, `screenshots/`, `scripts/`
+`configs/`, `diagrams/`, `docs/`, `screenshots/`, `screenshots-redacted/`, `scripts/`
 
 ## Git and CI
 
