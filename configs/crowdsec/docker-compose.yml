@@ -1,0 +1,55 @@
+# CrowdSec Security Engine for the public edge. DRAFT, not deployed.
+# Design: docs/crowdsec-edge-design/overview.md
+# Steps:  docs/crowdsec-edge-design/step-by-step.md (Stage 1)
+#
+# Stage 1 is detect only: no bouncer, global simulation on, no host port.
+# Stage 2 overrides: docker-compose.stage2.yml (Caddy bouncer key) and
+# docker-compose.lapi-loopback.yml (host firewall bouncer, only if SSH is public).
+#
+# No secrets in this file. Keys live in .env on the host (mode 600).
+name: crowdsec
+
+services:
+  crowdsec:
+    # v1.8.2 (published 2026-10-26), OCI index digest read from Docker Hub 2026-11-15.
+    image: crowdsecurity/crowdsec:v1.8.2@sha256:65b74942f7e7ed5c60fde4ac15fc4ba715904c398c8b16dd451f4907d90347d4
+    container_name: crowdsec
+    restart: unless-stopped
+    # Ceiling, not an estimate. Replace with a value based on the Stage 1 measurement.
+    mem_limit: 512m
+    environment:
+      TZ: UTC
+      # crowdsecurity/linux (default) already brings crowdsecurity/sshd.
+      COLLECTIONS: "crowdsecurity/caddy"
+      # Decision 2 in the overview: true stops Central API registration and signal sharing.
+      DISABLE_ONLINE_API: ${CROWDSEC_DISABLE_ONLINE_API:-false}
+    volumes:
+      - crowdsec_config:/etc/crowdsec
+      - crowdsec_data:/var/lib/crowdsec/data
+      - ./acquis.d:/etc/crowdsec/acquis.d:ro
+      # Host-only file with the tailnet range and owner addresses. Never in the repo.
+      - ${CROWDSEC_LOCAL_DIR:?set CROWDSEC_LOCAL_DIR in .env}/edge-allowlist.yaml:/etc/crowdsec/parsers/s02-enrich/edge-allowlist.yaml:ro
+      # Caddy's bind-mounted log directory, read only.
+      - ${CADDY_LOG_DIR:?set CADDY_LOG_DIR in .env}:/var/log/caddy:ro
+      # Whole /var/log, not the single auth.log file: a single-file bind keeps
+      # the old inode after logrotate replaces the file.
+      - /var/log:/var/log/host:ro
+    healthcheck:
+      test: ["CMD", "cscli", "lapi", "status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # LAPI listens on 8080 inside the container. Caddy reaches it as
+    # http://crowdsec:8080 on the shared web network. No host port in Stage 1.
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: web
+
+volumes:
+  crowdsec_config:
+  crowdsec_data:

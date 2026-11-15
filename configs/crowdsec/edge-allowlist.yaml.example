@@ -1,0 +1,14 @@
+# Parser whitelist template. DRAFT.
+# Copy to /opt/stayz3ro/crowdsec-local/edge-allowlist.yaml on the host and fill
+# in real values there. The filled file is never committed to this repo.
+# Events from these sources are dropped before the scenario stage.
+# The same values also go into the LAPI allowlist "edge-owner" (Stage 1.3).
+name: edge/owner-allowlist
+description: "Never alert on the tailnet or the owner's own addresses"
+whitelist:
+  reason: "tailnet and owner addresses"
+  cidr:
+    - "<TAILNET_RANGE>"       # Tailscale CGNAT range, same as the Caddyfile admin matcher
+    - "<OWNER_HOME_IPV4>"     # owner home connection
+    - "<OWNER_HOME_IPV6_PREFIX>"
+    # - "<OWNER_MOBILE_RANGE>"  # optional

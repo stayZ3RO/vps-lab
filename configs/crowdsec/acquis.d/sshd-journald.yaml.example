@@ -1,0 +1,9 @@
+# Alternative to sshd.yaml when the host has no auth.log.
+# Needs the -debian image (the default image has no journalctl binary) and the
+# host journal mounted read only, for example /var/log/journal:/run/log/journal:ro.
+# Rename to sshd-journald.yaml and remove sshd.yaml to use it.
+source: journalctl
+journalctl_filter:
+  - "_SYSTEMD_UNIT=ssh.service"
+labels:
+  type: syslog

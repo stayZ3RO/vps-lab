@@ -1,0 +1,7 @@
+# sshd through rsyslog's auth.log on the host (/var/log mounted at /var/log/host).
+# Stage 0 confirms the file exists. If it does not, use sshd-journald.yaml.example.
+source: file
+filenames:
+  - /var/log/host/auth.log
+labels:
+  type: syslog
