@@ -1,0 +1,13 @@
+# Stage 2a override for configs/caddy/docker-compose.yml. DRAFT.
+# Use from configs/caddy:
+#   docker compose -f docker-compose.yml -f ../crowdsec/caddy/docker-compose.caddy-bouncer.yml up -d caddy
+# Relative paths resolve from configs/caddy, the first file's directory.
+# Rollback: docker compose up -d caddy (base file only, official image).
+services:
+  caddy:
+    image: local/caddy-crowdsec:2.11.9-bouncer-0.15.0
+    build:
+      context: ../crowdsec/caddy
+      dockerfile: Dockerfile.crowdsec.example
+    environment:
+      CROWDSEC_API_KEY: ${CROWDSEC_API_KEY:?set CROWDSEC_API_KEY in configs/caddy/.env}

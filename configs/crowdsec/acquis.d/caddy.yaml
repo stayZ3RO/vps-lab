@@ -1,0 +1,8 @@
+# Caddy JSON access log (global log in configs/caddy/Caddyfile).
+# The crowdsecurity/caddy-logs parser takes the source from request.client_ip,
+# so Caddy needs trusted_proxies for the Cloudflare ranges (Stage 1.1).
+source: file
+filenames:
+  - /var/log/caddy/access.log
+labels:
+  type: caddy

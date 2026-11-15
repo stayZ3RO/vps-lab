@@ -1,0 +1,7 @@
+# Stage 2 override: registers the Caddy bouncer from a key in .env.
+# Use: docker compose -f docker-compose.yml -f docker-compose.stage2.yml up -d
+# BOUNCER_KEY_<name> cannot update an existing bouncer; delete it first to rotate.
+services:
+  crowdsec:
+    environment:
+      BOUNCER_KEY_caddy: ${CROWDSEC_CADDY_BOUNCER_KEY:?set CROWDSEC_CADDY_BOUNCER_KEY in .env}

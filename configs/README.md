@@ -16,6 +16,7 @@ These files are documentation artifacts, not live production secrets.
 | Reverse Proxy | [Caddy Config](caddy/) | Caddyfile + compose stack, automatic HTTPS (Phase 3) |
 | Analytics | [Umami Config](umami/) | Umami + PostgreSQL compose stack, env template (Phase 4) |
 | Notifications | [ntfy Config](ntfy/) | ntfy compose stack and server config |
+| Intrusion detection | [CrowdSec drafts](crowdsec/) | Draft CrowdSec engine, acquisition and Caddy bouncer examples (not deployed) |
 | Docker | [Docker Config Notes](docker/) | Future Docker Compose examples |
 
 ---

@@ -1,0 +1,9 @@
+# Custom Caddy with the CrowdSec bouncer HTTP module. DRAFT, Stage 2a.
+# Module: https://github.com/hslatman/caddy-crowdsec-bouncer (v0.15.0, 2026-11-02)
+# Tags read from Docker Hub 2026-11-15. Pin by digest before use.
+FROM caddy:2.11.9-builder AS builder
+RUN xcaddy build \
+    --with github.com/hslatman/caddy-crowdsec-bouncer/http@v0.15.0
+
+FROM caddy:2.11.9-alpine
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy

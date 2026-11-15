@@ -1,0 +1,9 @@
+# Stage 2b override, only if SSH is reachable on the public address.
+# Publishes LAPI on host loopback for the host firewall bouncer and
+# registers that bouncer from a key in .env.
+services:
+  crowdsec:
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      BOUNCER_KEY_firewall: ${CROWDSEC_FW_BOUNCER_KEY:?set CROWDSEC_FW_BOUNCER_KEY in .env}

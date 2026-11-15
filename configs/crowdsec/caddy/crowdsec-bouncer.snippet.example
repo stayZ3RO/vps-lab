@@ -1,0 +1,15 @@
+# Stage 2a Caddyfile additions. DRAFT. Needs the custom build in
+# Dockerfile.crowdsec.example. Check with caddy validate before restarting.
+
+# 1. In the global options block, after the servers block:
+	crowdsec {
+		api_url http://crowdsec:8080
+		api_key {$CROWDSEC_API_KEY}
+		ticker_interval 15s
+	}
+
+# 2. First line inside each public site block: status, ntfy and a.
+#    Not in the tailnet-only admin names (kuma, umami).
+	route {
+		crowdsec
+	}

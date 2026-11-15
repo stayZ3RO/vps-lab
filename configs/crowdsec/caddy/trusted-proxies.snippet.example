@@ -1,0 +1,11 @@
+# Goes inside the global options block of configs/caddy/Caddyfile (Stage 1.1).
+# <CLOUDFLARE_RANGES> is the space-separated list from
+# https://www.cloudflare.com/ips-v4/ and https://www.cloudflare.com/ips-v6/,
+# read at apply time. Keep it equal to the ranges in the DOCKER-USER rules.
+# Effect: {client_ip} and the access log client_ip become the visitor address.
+# The remote_ip matcher on the admin names is not affected.
+
+	servers {
+		trusted_proxies static <CLOUDFLARE_RANGES>
+		client_ip_headers CF-Connecting-IP
+	}
