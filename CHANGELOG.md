@@ -4,11 +4,100 @@
 ![Phase 1](https://img.shields.io/badge/phase_1-complete-success)
 ![Phase 2](https://img.shields.io/badge/phase_2-complete-success)
 ![Phase 3](https://img.shields.io/badge/phase_3-complete-success)
-![Next](https://img.shields.io/badge/next-Docker%20App%20Deployment-blue)
+![Next](https://img.shields.io/badge/next-Phase%204%20evidence%20follow--up-blue)
 
 This changelog tracks major documentation and infrastructure milestones for the VPS Cloud Infrastructure Lab.
 
 ---
+
+## 2026-11-15: CrowdSec edge design draft
+
+Pull request numbers from 2026-10-12 onward are Forgejo numbers. The count
+restarted at 1 when Forgejo became the primary host, so they overlap the
+older GitHub numbers used further down.
+
+- #16 added `docs/crowdsec-edge-design/` and draft configs in
+  `configs/crowdsec/`. It is a design only: nothing is deployed or
+  scheduled. Stage 1 is detection only for a week; Stage 2 blocks web
+  traffic in Caddy using the real client address. The draft exists because
+  Caddy currently logs the CDN address as the client, so detection needs a
+  Caddy change first.
+
+## 2026-11-08: Stale claims corrected, screenshots redacted again
+
+- #14 fixed claims an audit on 2026-11-06 found stale: the GitHub mirror
+  workflows still triggered on `master`, `AGENTS.md` and the README tree
+  did not list `screenshots-redacted/`, `configs/README.md` had no ntfy
+  row, and `screenshots/README.md` still showed Phase 4 as planned.
+- #15 replaced 21 screenshots across Phases 1 to 3 after an image review on
+  2026-11-06 found private details still visible in them. Only image files
+  changed.
+
+## 2026-11-03: Current-state file renamed, CI actions pinned
+
+- #13 renamed `CURRENT-STATUS.md` to `phase-state.md` and updated every
+  link to it. The commit calls this standardizing the current-state
+  filename.
+- #13 also pinned `actions/checkout` to a commit hash in the Forgejo and
+  GitHub workflows, so a moved tag cannot change what CI runs.
+- The default branch is `main` from this date: #12 merged into `master` on
+  2026-10-31 and #13 merged into `main`.
+
+## 2026-10-31: Visibility, domain and CI statements
+
+- #12 corrected `AGENTS.md`: the repository is public, public services are
+  under `chrisalorenzo.com` since the 2026-10-04 move, and CI runs on
+  Forgejo on push. It also added a Repository Checks section to the README
+  with the two link-check commands.
+
+## 2026-10-25: Tailnet-only admin sites in the Caddyfile
+
+- #11 added two Caddy sites for the Kuma and Umami admin names. Each one
+  proxies to the existing container only for a tailnet source address and
+  returns 403 to everything else. `configs/caddy/README.md` has the
+  validate, restart and check steps. This entry records the config in the
+  repository; `phase-state.md` does not record these sites as live.
+
+## 2026-10-23: ntfy topic names replaced with placeholders
+
+- #10 replaced the real ntfy topic names in the current-state file and the
+  ntfy execution packet with `TOPIC_EDGE` and `TOPIC_LAB`. A topic name is
+  part of how a client addresses ntfy, so it does not belong in a public
+  repository. The earlier names remain in git history.
+
+## 2026-10-21: Forgejo CI
+
+- #8 added `.forgejo/workflows/validate.yml`: a gitleaks scan, the
+  relative link check, a sensitive-file check, an empty-file check and
+  Docker Compose validation.
+- #9 gave the Compose validation step placeholder values for the two Umami
+  variables that `.env.example` leaves blank. `docker compose config`
+  needs non-empty values to interpolate; the placeholders are not
+  credentials and start nothing.
+
+## 2026-10-20: Caddy exposure checks use the current status host
+
+- #7 changed the two `curl` checks in `configs/caddy/README.md` from the
+  old status host to `status.chrisalorenzo.com`, because the old host only
+  redirects since the 2026-10-04 domain move.
+
+## 2026-10-19: README badge
+
+- #6 changed the README current-phase badge from "Docker App Deployment"
+  to "Umami tracker live".
+
+## 2026-10-15: Docs aligned with the Umami rollout, generic host names
+
+- #4 brought the README, roadmap, current-state file, Phase 4 docs,
+  diagrams and `scripts/README.md` in line with the 2026-10-14 deployment:
+  Phase 4 reads as deployed with evidence follow-up, and the firewall
+  description names the Cloudflare-only rule. It also corrected the ntfy
+  config comment that still described a DNS-only record, and removed the
+  pull request, manual and scheduled triggers from the GitHub mirror
+  workflows.
+- #5 replaced the real machine name with the generic `edge-vps` in docs,
+  diagrams and this changelog, and added a README note that machine names
+  and SSH aliases here are role examples.
 
 ## 2026-10-14: Umami deployed, public record proxied
 
@@ -23,6 +112,16 @@ This changelog tracks major documentation and infrastructure milestones for the 
 - Added `CLIENT_IP_HEADER: CF-Connecting-IP` to the Umami compose file so
   visitor addresses are the real ones, not Cloudflare's.
 
+## 2026-10-12: Umami re-scoped to the current domain
+
+- #1 recorded the re-scope in the current-state file: the staged plan
+  targeted the old domain, and after the 2026-10-04 move Umami goes on a
+  neutral host under `chrisalorenzo.com` with a public tracker and
+  tailnet-only admin.
+- #2 rewrote the staged files to match: `configs/umami/` (compose file,
+  `.env.example`, README), a daily PostgreSQL dump script with a systemd
+  service and timer, and the Phase 4 step-by-step guide.
+
 ## Current State
 
 | Phase | Status |
@@ -30,7 +129,7 @@ This changelog tracks major documentation and infrastructure milestones for the 
 | Phase 1 - VPS Baseline & Security Hardening | ✅ Complete |
 | Phase 2 - Domain DNS & Public Routing | ✅ Complete |
 | Phase 3 - Reverse Proxy & HTTPS | ✅ Complete |
-| Phase 4 - Docker App Deployment | 🚧 In Progress |
+| Phase 4 - Docker App Deployment | ✅ Deployed 2026-10-14; evidence follow-up |
 | Phase 5 - Monitoring & Alerts | ✅ Public edge live since 2026-09-28 |
 
 ---

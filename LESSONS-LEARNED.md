@@ -486,6 +486,28 @@ a failed VPS. An independent offsite check remains planned for that case.
 
 ---
 
+## Redacted Screenshots Need a Second Review
+
+The Phase 1 to 3 screenshots were redacted before they were committed. An
+image review on 2026-11-06 still found private details in 21 of them, and
+they were replaced on 2026-11-08. One redaction pass was not enough.
+Open each image at full size and read every line before it goes in, and
+review committed images again when the list of things that count as
+private grows.
+
+---
+
+## A Topic Name Is Not Documentation
+
+The ntfy execution packet and the current-state file carried the real
+topic names until 2026-10-23. Access was still controlled by ntfy's
+deny-all default and per-user access rules, but a topic name is part of the
+address a client uses, and a public repository has no need for it. Use
+placeholders for anything a client would type to reach a service, even
+when a separate control protects it.
+
+---
+
 ## Main Takeaway
 
 Phase 1 made the VPS safe to manage.

@@ -47,6 +47,20 @@ reason to pick a heavier proxy - Caddy emits structured JSON access logs here.
 | Backend application ports | Internal Docker networks; Kuma and Umami admin listeners bind IPv4 loopback |
 | Caddy admin API | Disabled (`admin off`) |
 
+### Known difference: the tracker site block
+
+The checked-in `Caddyfile` still has the `a.chrisalorenzo.com` site block
+commented out, with its "keep staged" comment. The records say that site is
+live: [phase-state.md](../../phase-state.md) and the
+[2026-10-14 changelog entry](../../CHANGELOG.md#2026-10-14-umami-deployed-public-record-proxied)
+record Umami deployed behind Caddy with `/script.js` and `/api/send` public.
+
+For what is deployed, `phase-state.md` is authoritative, not this copy of
+the `Caddyfile`. The copy has not been compared with the file on the VPS
+since the deployment. The owner needs to compare the two and update this
+copy; until then, do not deploy this copy over the live file, because that
+would take the tracker offline.
+
 ---
 
 Since 2026-10-05, the `status` and `ntfy` records use the Cloudflare proxy.
