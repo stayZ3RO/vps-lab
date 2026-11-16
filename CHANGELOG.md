@@ -4,7 +4,7 @@
 ![Phase 1](https://img.shields.io/badge/phase_1-complete-success)
 ![Phase 2](https://img.shields.io/badge/phase_2-complete-success)
 ![Phase 3](https://img.shields.io/badge/phase_3-complete-success)
-![Next](https://img.shields.io/badge/next-Docker%20App%20Deployment-blue)
+![Next](https://img.shields.io/badge/next-Phase%204%20evidence%20follow--up-blue)
 
 This changelog tracks major documentation and infrastructure milestones for the VPS Cloud Infrastructure Lab.
 
