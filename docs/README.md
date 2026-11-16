@@ -28,6 +28,14 @@ Each phase is organized like a small infrastructure case study:
 
 ---
 
+## Design Drafts
+
+| Draft | Status | Documentation |
+|---|---:|---|
+| CrowdSec on the public edge | Draft 2026-11-15, not deployed | [View draft](crowdsec-edge-design/) |
+
+---
+
 ## Current Focus
 
 The current phase is:
