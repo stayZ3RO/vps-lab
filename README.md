@@ -276,18 +276,15 @@ There are no push monitors.
 
 ## Repository Checks
 
-Run these from the repo root before opening a PR:
+Run the repository checks before opening a PR:
 
 ```sh
-python3 scripts/check-relative-links.py --self-test
-python3 scripts/check-relative-links.py
+sh scripts/check.sh
 ```
 
-The first checks the link parser; the second fails on broken relative
-Markdown links in tracked files. The Forgejo `validate` workflow runs the
-link check on push, plus a gitleaks secret scan, a sensitive-file check, an
-empty-file check and a Docker Compose validation. More detail is in
-[scripts/README.md](scripts/README.md).
+The script checks links, phase claims, sensitive filenames and empty Markdown
+files. With Compose installed, it also validates the base Compose examples.
+Forgejo runs a separate Gitleaks scan. See [scripts/README.md](scripts/README.md).
 
 ---
 
