@@ -8,9 +8,6 @@ ALLOWED = {
     "phase-state.md",
     "README.md",
     "CHANGELOG.md",
-    "configs/README.md",
-    "configs/caddy/README.md",
-    "LESSONS-LEARNED.md",
     "docs/README.md",
 }
 
