@@ -4,11 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ALLOWED = {
-    "phase-state.md",
-    "README.md",
-    "CHANGELOG.md",
-}
+ALLOWED = {"phase-state.md"}
 
 
 CLAIM = re.compile(
