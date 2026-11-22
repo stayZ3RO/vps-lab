@@ -8,7 +8,6 @@ ALLOWED = {
     "phase-state.md",
     "README.md",
     "CHANGELOG.md",
-    "docs/README.md",
 }
 
 
