@@ -38,18 +38,4 @@ Use `.example` files for documentation.
 
 ---
 
-## Current Phase
-
-Phase 1 includes sanitized examples for:
-
-- SSH hardening
-- UFW firewall baseline
-- Fail2Ban SSH jail
-
-Future phases will add examples for:
-
-- Reverse proxy
-- HTTPS routing
-- Docker Compose services
-- Monitoring
-- Backups
+See [project status](../phase-state.md) for the active phase.

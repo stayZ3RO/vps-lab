@@ -4,6 +4,8 @@
 
 | File | Purpose | Where it runs |
 |---|---|---|
+| [check.sh](check.sh) | Run the local repository checks | Workstation |
+| [check-state-claims.py](check-state-claims.py) | Keep phase claims in the project status file | Repository checks |
 | [check-relative-links.py](check-relative-links.py) | Check tracked Markdown links; `--self-test` checks the parser | Workstation and the Forgejo `validate` workflow |
 | [backup-umami.sh](../configs/umami/backup-umami.sh) | Write and verify a PostgreSQL custom-format dump and SHA-256 sidecar; keep 14 days locally | VPS after explicit installation |
 | [umami-backup.service](../configs/umami/umami-backup.service) | Run the backup script | Host systemd service |
@@ -17,8 +19,7 @@ still needed. Do not run host backup or deployment commands as local docs checks
 ## Local Documentation Checks
 
 ```sh
-python3 scripts/check-relative-links.py --self-test
-python3 scripts/check-relative-links.py
+sh scripts/check.sh
 ```
 
 ## Script Safety Rules

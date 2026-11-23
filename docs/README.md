@@ -38,9 +38,7 @@ Each phase is organized like a small infrastructure case study:
 
 ## Current Focus
 
-The current phase is:
-
-**Phase 4 - Docker App Deployment**
+See [project status](../phase-state.md) for the active phase.
 
 Umami was deployed on 2026-10-14 with public tracker paths and private
 administration. [Current Status](../phase-state.md) records the current
