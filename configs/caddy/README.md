@@ -2,8 +2,6 @@
 
 Reverse proxy and automatic HTTPS for the VPS Cloud Infrastructure Lab.
 
-Phase: **Phase 3 - Reverse Proxy & HTTPS**
-
 ---
 
 ## Files

@@ -4,7 +4,6 @@
 ![Phase 1](https://img.shields.io/badge/phase_1-complete-success)
 ![Phase 2](https://img.shields.io/badge/phase_2-complete-success)
 ![Phase 3](https://img.shields.io/badge/phase_3-complete-success)
-![Next](https://img.shields.io/badge/next-Docker%20App%20Deployment-blue)
 
 This file documents operational lessons, troubleshooting notes, and infrastructure design decisions from the VPS Cloud Infrastructure Lab.
 
@@ -19,10 +18,6 @@ The first two phases established the foundation for a production-style public VP
 | Phase 1 - VPS Baseline & Security Hardening | Built a secure Linux server baseline |
 | Phase 2 - Domain DNS & Public Routing | Connected `stayz3ro.dev` and restricted SSH to Tailscale |
 | Phase 3 - Reverse Proxy & HTTPS | Deployed Caddy + Uptime Kuma, found and fixed a DNS zone mismatch, closed a race-condition risk before going public |
-
-The project is now ready for:
-
-**Phase 4 - Docker App Deployment**
 
 ---
 
